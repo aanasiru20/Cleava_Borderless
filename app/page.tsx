@@ -22,7 +22,9 @@ import {
   Info,
   Check,
   Globe,
-  FileText
+  FileText,
+  Sun,
+  Moon
 } from "lucide-react";
 
 type Persona = "Freelancer" | "Merchant" | "User";
@@ -31,6 +33,9 @@ type Tab = "dashboard" | "pay" | "save" | "earn";
 export default function Home() {
   const [currentPersona, setCurrentPersona] = useState<Persona>("User");
   const [activeTab, setActiveTab] = useState<Tab>("dashboard");
+
+  // Accessibility State (Premium Dark Mode by Default)
+  const [isDarkMode, setIsDarkMode] = useState<boolean>(true);
 
   // Interactive Balance & Flow States
   const [usdtBalance, setUsdtBalance] = useState<number>(1240.50);
@@ -222,43 +227,20 @@ export default function Home() {
     setTimeout(() => setLinkCopied(false), 3000);
   };
 
-  // Dynamic Content Map for other views
-  const getPlaceholderContent = (persona: Persona, tab: Tab) => {
-    const details = {
-      Freelancer: {
-        pay: {
-          title: "Freelancer Request & Pay",
-          desc: "Pay service providers or scan a merchant's code to settle business expenses directly.",
-        },
-      },
-      Merchant: {
-        pay: {
-          title: "Merchant Pay & Accept",
-          desc: "Display your static business QR code or scan a customer's wallet to accept instant payments.",
-        },
-      },
-      User: {
-        pay: {
-          title: "Everyday CampusPay",
-          desc: "Instantly scan student vendor QR codes for quick payments with zero fees.",
-        },
-      },
-    };
-
-    if (tab === "dashboard" || tab === "save" || tab === "earn") return { title: "", desc: "" };
-    return details[persona][tab as keyof typeof details["User"]];
-  };
-
   const header = getHeader(currentPersona);
   const actions = getActions(currentPersona);
   const transactions = getTransactions(currentPersona);
-  const placeholder = getPlaceholderContent(currentPersona, activeTab);
 
   return (
     <main className="flex min-h-screen items-center justify-center bg-slate-900 p-4 font-sans antialiased">
-      {/* Mobile Device Frame Container */}
-      <div className="relative flex h-[850px] w-full max-w-md flex-col overflow-hidden rounded-[40px] border border-slate-800 bg-slate-950 text-white shadow-2xl ring-1 ring-slate-800/50">
-        
+      {/* Mobile Device Frame Container (Dynamic Theme Color classes) */}
+      <div
+        className={`relative flex h-[850px] w-full max-w-md flex-col overflow-hidden rounded-[40px] border shadow-2xl ring-1 ring-slate-800/50 transition-all duration-300 ${
+          isDarkMode
+            ? "border-slate-800 bg-slate-950 text-white"
+            : "border-slate-200 bg-slate-50 text-slate-900"
+        }`}
+      >
         {/* Full Screen Green Modal Overlay on Transaction Success */}
         {scanSuccess && (
           <div className="absolute inset-0 z-50 flex flex-col items-center justify-center bg-emerald-950/95 px-6 text-center animate-fadeIn backdrop-blur-md">
@@ -282,14 +264,39 @@ export default function Home() {
           </div>
         )}
 
-        {/* Sleek Top Bar (Persona Switcher) */}
-        <div className="z-10 bg-slate-950/80 px-6 pt-8 pb-4 backdrop-blur-md">
+        {/* Sleek Top Bar (Persona Switcher + Theme Toggle) */}
+        <div
+          className={`z-10 px-6 pt-8 pb-4 backdrop-blur-md transition-colors ${
+            isDarkMode ? "bg-slate-950/80" : "bg-slate-50/80"
+          }`}
+        >
           <div className="flex items-center justify-between mb-4">
-            <span className="text-xs font-semibold tracking-widest text-slate-400 uppercase">
+            <span
+              className={`text-xs font-semibold tracking-widest uppercase transition-colors ${
+                isDarkMode ? "text-slate-400" : "text-slate-500"
+              }`}
+            >
               Cleva Borderless
             </span>
             <div className="flex items-center gap-3">
-              <button className="relative p-1 text-slate-400 hover:text-white transition-colors">
+              {/* Theme Toggle Button */}
+              <button
+                onClick={() => setIsDarkMode(!isDarkMode)}
+                className={`p-1.5 rounded-lg border transition-all duration-300 active:scale-95 ${
+                  isDarkMode
+                    ? "border-slate-800 bg-slate-900 text-amber-400 hover:text-amber-300"
+                    : "border-slate-200 bg-slate-200 text-indigo-900 hover:bg-slate-300"
+                }`}
+                title={isDarkMode ? "Switch to Light Mode" : "Switch to Dark Mode"}
+              >
+                {isDarkMode ? <Sun className="h-3.5 w-3.5" /> : <Moon className="h-3.5 w-3.5" />}
+              </button>
+
+              <button
+                className={`relative p-1 transition-colors ${
+                  isDarkMode ? "text-slate-400 hover:text-white" : "text-slate-500 hover:text-slate-900"
+                }`}
+              >
                 <Bell className="h-4 w-4" />
                 <span className="absolute top-0 right-0 h-1.5 w-1.5 rounded-full bg-[#00D26A]" />
               </button>
@@ -298,20 +305,23 @@ export default function Home() {
           </div>
 
           {/* Persona Switcher Pill */}
-          <div className="flex rounded-full bg-slate-900 p-1 border border-slate-800/80">
+          <div
+            className={`flex rounded-full p-1 border transition-colors ${
+              isDarkMode ? "bg-slate-900 border-slate-800/80" : "bg-slate-200/60 border-slate-300"
+            }`}
+          >
             {(["Freelancer", "Merchant", "User"] as Persona[]).map((persona) => {
               const isActive = currentPersona === persona;
               return (
                 <button
                   key={persona}
-                  onClick={() => {
-                    setCurrentPersona(persona);
-                    setSwapSuccess(false); // Reset success toast
-                  }}
+                  onClick={() => setCurrentPersona(persona)}
                   className={`flex-1 rounded-full py-2 text-xs font-medium transition-all duration-300 ${
                     isActive
                       ? "bg-gradient-to-r from-[#00D26A] to-[#009393] text-white shadow-lg shadow-[#00D26A]/10 font-semibold"
-                      : "text-slate-400 hover:text-white hover:bg-slate-800/40"
+                      : isDarkMode
+                      ? "text-slate-400 hover:text-white hover:bg-slate-800/40"
+                      : "text-slate-600 hover:text-slate-900 hover:bg-slate-300/40"
                   }`}
                 >
                   {persona}
@@ -327,29 +337,56 @@ export default function Home() {
             <div className="space-y-6">
               {/* Dynamic Header */}
               <div className="space-y-1">
-                <h1 className="text-xl font-bold text-white tracking-tight">{header.title}</h1>
-                <p className="text-xs text-slate-400 flex items-center gap-1.5">
+                <h1
+                  className={`text-xl font-bold tracking-tight transition-colors ${
+                    isDarkMode ? "text-white" : "text-slate-900"
+                  }`}
+                >
+                  {header.title}
+                </h1>
+                <p
+                  className={`text-xs flex items-center gap-1.5 transition-colors ${
+                    isDarkMode ? "text-slate-400" : "text-slate-500"
+                  }`}
+                >
                   <span className="inline-block h-1.5 w-1.5 rounded-full bg-[#009393]" />
                   {header.subtitle}
                 </p>
               </div>
 
               {/* Unified Balance Card */}
-              <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-teal-900 via-slate-900 to-slate-950 p-6 border border-slate-800 shadow-xl">
+              <div
+                className={`relative overflow-hidden rounded-2xl p-6 border shadow-xl transition-all ${
+                  isDarkMode
+                    ? "bg-gradient-to-br from-teal-900 via-slate-900 to-slate-950 border-slate-800 text-white"
+                    : "bg-gradient-to-br from-teal-50 via-slate-100 to-slate-200 border-slate-200 text-slate-900"
+                }`}
+              >
                 <div className="absolute top-0 right-0 h-24 w-24 bg-gradient-to-br from-[#00D26A]/10 to-[#009393]/10 rounded-bl-full filter blur-xl" />
                 <div className="space-y-4">
                   <div className="flex justify-between items-start">
-                    <span className="text-xs font-medium text-slate-400 uppercase tracking-wider">Total Balance</span>
+                    <span
+                      className={`text-xs font-medium uppercase tracking-wider ${
+                        isDarkMode ? "text-slate-400" : "text-slate-500"
+                      }`}
+                    >
+                      Total Balance
+                    </span>
                     <span className="inline-flex items-center gap-1 text-[10px] font-medium bg-[#00D26A]/10 text-[#00D26A] px-2.5 py-0.5 rounded-full">
                       <Sparkles className="h-3 w-3" /> Live Swap
                     </span>
                   </div>
 
                   <div className="space-y-1">
-                    <div className="text-3xl font-extrabold tracking-tight text-white flex items-baseline gap-1">
-                      ${usdtBalance.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} <span className="text-sm font-semibold text-[#009393]">USDT</span>
+                    <div className="text-3xl font-extrabold tracking-tight flex items-baseline gap-1">
+                      ${usdtBalance.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}{" "}
+                      <span className="text-sm font-semibold text-[#009393]">USDT</span>
                     </div>
-                    <div className="text-sm text-slate-400 font-medium">
+                    <div
+                      className={`text-sm font-medium ${
+                        isDarkMode ? "text-slate-400" : "text-slate-600"
+                      }`}
+                    >
                       ₦{nairaBalance.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                     </div>
                   </div>
@@ -362,7 +399,11 @@ export default function Home() {
                         <button
                           key={idx}
                           onClick={() => handleQuickAction(action.label)}
-                          className="flex items-center justify-center gap-2 rounded-xl bg-slate-900/60 hover:bg-slate-900 px-3 py-2.5 text-xs font-semibold text-white border border-slate-800 transition-all active:scale-[0.98]"
+                          className={`flex items-center justify-center gap-2 rounded-xl px-3 py-2.5 text-xs font-semibold border transition-all active:scale-[0.98] ${
+                            isDarkMode
+                              ? "bg-slate-900/60 hover:bg-slate-900 text-white border-slate-800"
+                              : "bg-slate-200/80 hover:bg-slate-200 text-slate-800 border-slate-300"
+                          }`}
                         >
                           <Icon className="h-3.5 w-3.5 text-[#00D26A]" />
                           {action.label}
@@ -376,7 +417,13 @@ export default function Home() {
               {/* Dynamic Transaction Activity Feed */}
               <div className="space-y-3">
                 <div className="flex justify-between items-center">
-                  <h3 className="text-xs font-bold text-slate-400 uppercase tracking-widest">Recent Activity</h3>
+                  <h3
+                    className={`text-xs font-bold uppercase tracking-widest ${
+                      isDarkMode ? "text-slate-400" : "text-slate-500"
+                    }`}
+                  >
+                    Recent Activity
+                  </h3>
                   <button className="text-xs font-medium text-[#00D26A] hover:underline flex items-center gap-0.5">
                     View All <ChevronRight className="h-3 w-3" />
                   </button>
@@ -386,18 +433,30 @@ export default function Home() {
                   {transactions.map((tx) => (
                     <div
                       key={tx.id}
-                      className="flex items-center justify-between rounded-xl bg-slate-900/40 hover:bg-slate-900/60 p-3 border border-slate-900 transition-colors"
+                      className={`flex items-center justify-between rounded-xl p-3 border transition-colors ${
+                        isDarkMode
+                          ? "bg-slate-900/40 hover:bg-slate-900/60 border-slate-900"
+                          : "bg-white hover:bg-slate-100 border-slate-200"
+                      }`}
                     >
                       <div className="flex items-center gap-3">
-                        <div className={`flex h-9 w-9 items-center justify-center rounded-lg ${
-                          tx.type === "in"
-                            ? "bg-[#00D26A]/10 text-[#00D26A]"
-                            : "bg-red-500/10 text-red-400"
-                        }`}>
+                        <div
+                          className={`flex h-9 w-9 items-center justify-center rounded-lg ${
+                            tx.type === "in"
+                              ? "bg-[#00D26A]/10 text-[#00D26A]"
+                              : "bg-red-500/10 text-red-400"
+                          }`}
+                        >
                           {tx.type === "in" ? <ArrowUpRight className="h-4 w-4" /> : <ArrowDownLeft className="h-4 w-4" />}
                         </div>
                         <div>
-                          <div className="text-xs font-semibold text-white">{tx.label}</div>
+                          <div
+                            className={`text-xs font-semibold ${
+                              isDarkMode ? "text-white" : "text-slate-950"
+                            }`}
+                          >
+                            {tx.label}
+                          </div>
                           <div className="text-[10px] text-slate-500">{tx.date}</div>
                         </div>
                       </div>
@@ -418,10 +477,14 @@ export default function Home() {
           {activeTab === "pay" && (
             <div className="h-full flex flex-col justify-between py-4 space-y-6">
               <div className="text-center space-y-1">
-                <h2 className="text-xl font-bold text-white">
+                <h2
+                  className={`text-xl font-bold transition-colors ${
+                    isDarkMode ? "text-white" : "text-slate-900"
+                  }`}
+                >
                   {currentPersona === "Merchant" ? "Accept POS Payments" : "Scan to Pay"}
                 </h2>
-                <p className="text-xs text-slate-400">
+                <p className={`text-xs ${isDarkMode ? "text-slate-400" : "text-slate-500"}`}>
                   {currentPersona === "Merchant"
                     ? "Let customers scan to transfer USDT instantly"
                     : "Scan any vendor QR code to transfer stablecoins"}
@@ -433,7 +496,11 @@ export default function Home() {
                 {currentPersona === "Merchant" ? (
                   /* Merchant static QR Display */
                   <div className="flex flex-col items-center space-y-4">
-                    <div className="relative p-6 bg-white rounded-3xl border border-slate-800 shadow-xl">
+                    <div
+                      className={`relative p-6 rounded-3xl border shadow-xl transition-all ${
+                        isDarkMode ? "bg-white border-slate-800" : "bg-white border-slate-200"
+                      }`}
+                    >
                       <div className="h-48 w-48 flex items-center justify-center bg-slate-100 text-slate-900 border-2 border-[#009393] rounded-2xl relative overflow-hidden">
                         {/* Simulated QR block code */}
                         <div className="grid grid-cols-5 gap-2 p-4 w-full h-full opacity-90">
@@ -455,20 +522,34 @@ export default function Home() {
                         </div>
                       </div>
                     </div>
-                    <span className="text-xs bg-slate-900 border border-slate-800 px-3 py-1 rounded-full text-slate-400 font-medium">
-                      Merchant ID: <strong className="text-white">aliyu.cleva</strong>
+                    <span
+                      className={`text-xs border px-3 py-1 rounded-full font-medium transition-all ${
+                        isDarkMode
+                          ? "bg-slate-900 border-slate-800 text-slate-400"
+                          : "bg-slate-200 border-slate-300 text-slate-600"
+                      }`}
+                    >
+                      Merchant ID: <strong className={isDarkMode ? "text-white" : "text-slate-800"}>aliyu.cleva</strong>
                     </span>
                   </div>
                 ) : (
                   /* User/Freelancer camera scanning view */
-                  <div className="relative w-64 h-64 rounded-3xl border-2 border-dashed border-slate-700 bg-slate-900/40 flex items-center justify-center overflow-hidden">
+                  <div
+                    className={`relative w-64 h-64 rounded-3xl border-2 border-dashed flex items-center justify-center overflow-hidden transition-all ${
+                      isDarkMode ? "border-slate-700 bg-slate-900/40" : "border-slate-300 bg-slate-200/40"
+                    }`}
+                  >
                     {isScanning ? (
                       <div className="flex flex-col items-center gap-2 z-10 text-[#00D26A]">
                         <Loader2 className="h-8 w-8 animate-spin" />
                         <span className="text-xs font-semibold">Scanning QR code...</span>
                       </div>
                     ) : (
-                      <div className="flex flex-col items-center gap-2 text-slate-500 z-10">
+                      <div
+                        className={`flex flex-col items-center gap-2 z-10 ${
+                          isDarkMode ? "text-slate-500" : "text-slate-400"
+                        }`}
+                      >
                         <ScanLine className="h-10 w-10 animate-pulse text-[#00D26A]" />
                         <span className="text-[11px]">Align QR in viewfinder</span>
                       </div>
@@ -506,20 +587,33 @@ export default function Home() {
           {/* StableSave (TrendingUp) View */}
           {activeTab === "save" && (
             <div className="h-full flex flex-col justify-between py-4 space-y-4">
-              
               {/* Header Info */}
               <div className="text-center space-y-1">
-                <h2 className="text-xl font-bold text-white flex items-center justify-center gap-1.5">
+                <h2
+                  className={`text-xl font-bold flex items-center justify-center gap-1.5 ${
+                    isDarkMode ? "text-white" : "text-slate-900"
+                  }`}
+                >
                   <TrendingUp className="h-5 w-5 text-[#00D26A]" />
                   Cleva StableSave
                 </h2>
-                <p className="text-xs text-slate-400">Lock stable value & secure your purchasing power</p>
+                <p className={`text-xs ${isDarkMode ? "text-slate-400" : "text-slate-500"}`}>
+                  Lock stable value & secure your purchasing power
+                </p>
               </div>
 
               {/* 1. Local Inflation Tracker Widget */}
-              <div className="rounded-2xl border border-slate-800 bg-slate-900/40 p-4 space-y-2">
+              <div
+                className={`rounded-2xl border p-4 space-y-2 transition-all ${
+                  isDarkMode ? "border-slate-800 bg-slate-900/40" : "border-slate-200 bg-slate-200/50"
+                }`}
+              >
                 <div className="flex justify-between items-center">
-                  <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest flex items-center gap-1">
+                  <span
+                    className={`text-[10px] font-bold uppercase tracking-widest flex items-center gap-1 ${
+                      isDarkMode ? "text-slate-400" : "text-slate-500"
+                    }`}
+                  >
                     <TrendingDown className="h-3.5 w-3.5 text-red-400" /> Naira Purchasing Power
                   </span>
                   <span className="text-[9px] font-bold text-[#009393] bg-[#009393]/10 border border-[#009393]/20 px-2 py-0.5 rounded-full">
@@ -539,26 +633,54 @@ export default function Home() {
               </div>
 
               {/* 2. AI Smart Suggestion Card */}
-              <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-purple-900/30 via-slate-950 to-slate-950 p-5 border border-purple-500/20 shadow-xl space-y-3">
+              <div
+                className={`relative overflow-hidden rounded-2xl p-5 border shadow-xl space-y-3 transition-all ${
+                  isDarkMode
+                    ? "bg-gradient-to-r from-purple-900/30 via-slate-950 to-slate-950 border-purple-500/20 text-slate-200"
+                    : "bg-gradient-to-r from-purple-100 via-slate-100 to-slate-100 border-purple-200 text-slate-800"
+                }`}
+              >
                 <div className="absolute top-0 right-0 h-16 w-16 bg-purple-500/10 rounded-bl-full filter blur-lg" />
                 <div className="flex items-center gap-1.5">
                   <Sparkles className="h-4 w-4 text-purple-400" />
-                  <span className="text-[10px] font-bold text-purple-300 uppercase tracking-widest">Cleva AI Brain SUGGESTION</span>
+                  <span
+                    className={`text-[10px] font-bold uppercase tracking-widest ${
+                      isDarkMode ? "text-purple-300" : "text-purple-700"
+                    }`}
+                  >
+                    Cleva AI Brain SUGGESTION
+                  </span>
                 </div>
-                <p className="text-xs text-slate-200 leading-relaxed">
+                <p className="text-xs leading-relaxed font-medium">
                   {activeSave.aiText}
                 </p>
               </div>
 
               {/* 3. The 1-Click Swap Component */}
-              <div className="bg-slate-900/60 border border-slate-800 p-4 rounded-2xl space-y-3">
-                <div className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Swap Preview</div>
-                <div className="flex justify-between items-center bg-slate-950 p-3 rounded-xl border border-slate-900">
+              <div
+                className={`border p-4 rounded-2xl space-y-3 transition-all ${
+                  isDarkMode ? "bg-slate-900/60 border-slate-800" : "bg-slate-200/30 border-slate-200"
+                }`}
+              >
+                <div
+                  className={`text-xs font-bold uppercase tracking-wider mb-1 ${
+                    isDarkMode ? "text-slate-400" : "text-slate-500"
+                  }`}
+                >
+                  Swap Preview
+                </div>
+                <div
+                  className={`flex justify-between items-center p-3 rounded-xl border ${
+                    isDarkMode ? "bg-slate-950 border-slate-900" : "bg-white border-slate-200"
+                  }`}
+                >
                   <div>
                     <span className="text-[9px] text-slate-500 block uppercase">From ({activeSave.fromText})</span>
-                    <span className="text-xs font-semibold text-white">{activeSave.fromVal}</span>
+                    <span className={`text-xs font-semibold ${isDarkMode ? "text-white" : "text-slate-855"}`}>
+                      {activeSave.fromVal}
+                    </span>
                   </div>
-                  <RefreshCw className="h-4 w-4 text-slate-600 animate-spin-slow" />
+                  <RefreshCw className="h-4 w-4 text-slate-500" />
                   <div className="text-right">
                     <span className="text-[9px] text-slate-500 block uppercase">To ({activeSave.toText})</span>
                     <span className="text-xs font-semibold text-[#00D26A]">{activeSave.toVal}</span>
@@ -567,7 +689,7 @@ export default function Home() {
 
                 {/* Swap Success Toast inside screen layout */}
                 {swapSuccess && (
-                  <div className="flex items-center gap-2 rounded-xl bg-emerald-500/10 border border-emerald-500/20 p-2.5 text-center text-xs font-semibold text-emerald-400 animate-fadeIn justify-center">
+                  <div className="flex items-center gap-2 rounded-xl bg-emerald-500/10 border border-emerald-500/20 p-2.5 text-center text-xs font-semibold text-emerald-500 animate-fadeIn justify-center">
                     <Check className="h-4 w-4" /> Assets Successfully Secured in Stablecoin!
                   </div>
                 )}
@@ -586,21 +708,23 @@ export default function Home() {
                   )}
                 </button>
               </div>
-
             </div>
           )}
 
           {/* Invoicing / Links (Link2) View */}
           {activeTab === "earn" && (
             <div className="h-full flex flex-col justify-between py-4 space-y-4">
-              
               {/* Dynamic Header Wrapper */}
               <div className="text-center space-y-1">
-                <h2 className="text-xl font-bold text-white flex items-center justify-center gap-1.5">
+                <h2
+                  className={`text-xl font-bold flex items-center justify-center gap-1.5 ${
+                    isDarkMode ? "text-white" : "text-slate-900"
+                  }`}
+                >
                   <Link2 className="h-5 w-5 text-[#009393]" />
                   {currentPersona === "Merchant" ? "Bulk B2B Invoice Link" : "Global PayLink Generator"}
                 </h2>
-                <p className="text-xs text-slate-400">
+                <p className={`text-xs ${isDarkMode ? "text-slate-400" : "text-slate-500"}`}>
                   {currentPersona === "Merchant"
                     ? "Generate formal business invoices for suppliers"
                     : "Create customizable links to receive global payments"}
@@ -608,11 +732,25 @@ export default function Home() {
               </div>
 
               {/* Interactive Input Fields */}
-              <div className="bg-slate-900/60 border border-slate-800 p-5 rounded-2xl space-y-4">
+              <div
+                className={`border p-5 rounded-2xl space-y-4 transition-all ${
+                  isDarkMode ? "bg-slate-900/60 border-slate-800" : "bg-slate-250/20 border-slate-200"
+                }`}
+              >
                 {/* Amount input */}
                 <div className="space-y-1.5">
-                  <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Requested Amount</label>
-                  <div className="flex items-center gap-2 border border-slate-850 rounded-xl bg-slate-950 px-3.5 py-2.5">
+                  <label
+                    className={`text-[10px] font-bold uppercase tracking-wider block ${
+                      isDarkMode ? "text-slate-400" : "text-slate-500"
+                    }`}
+                  >
+                    Requested Amount
+                  </label>
+                  <div
+                    className={`flex items-center gap-2 border rounded-xl px-3.5 py-2.5 transition-all ${
+                      isDarkMode ? "border-slate-850 bg-slate-950" : "border-slate-200 bg-white"
+                    }`}
+                  >
                     <span className="text-md font-bold text-[#009393]">$</span>
                     <input
                       type="number"
@@ -621,7 +759,9 @@ export default function Home() {
                         setInvoiceAmount(e.target.value);
                         setHasGenerated(false); // Reset URL lock
                       }}
-                      className="bg-transparent text-sm font-semibold text-white outline-none w-full"
+                      className={`bg-transparent text-sm font-semibold outline-none w-full ${
+                        isDarkMode ? "text-white" : "text-slate-900"
+                      }`}
                       placeholder="0.00"
                     />
                     <span className="text-xs font-semibold text-slate-500">USDT</span>
@@ -630,8 +770,18 @@ export default function Home() {
 
                 {/* Description Input */}
                 <div className="space-y-1.5">
-                  <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Description / Project Name</label>
-                  <div className="flex items-center gap-2 border border-slate-850 rounded-xl bg-slate-950 px-3.5 py-2.5">
+                  <label
+                    className={`text-[10px] font-bold uppercase tracking-wider block ${
+                      isDarkMode ? "text-slate-400" : "text-slate-500"
+                    }`}
+                  >
+                    Description / Project Name
+                  </label>
+                  <div
+                    className={`flex items-center gap-2 border rounded-xl px-3.5 py-2.5 transition-all ${
+                      isDarkMode ? "border-slate-850 bg-slate-950" : "border-slate-200 bg-white"
+                    }`}
+                  >
                     <FileText className="h-4 w-4 text-slate-500" />
                     <input
                       type="text"
@@ -640,7 +790,9 @@ export default function Home() {
                         setInvoiceDescription(e.target.value);
                         setHasGenerated(false);
                       }}
-                      className="bg-transparent text-sm font-medium text-white outline-none w-full"
+                      className={`bg-transparent text-sm font-medium outline-none w-full ${
+                        isDarkMode ? "text-white" : "text-slate-900"
+                      }`}
                       placeholder="e.g. Services rendered"
                     />
                   </div>
@@ -648,15 +800,27 @@ export default function Home() {
               </div>
 
               {/* Live Link Preview Box */}
-              <div className="rounded-2xl border-2 border-dashed border-slate-800 bg-slate-900/10 p-4 space-y-3">
+              <div
+                className={`rounded-2xl border-2 border-dashed p-4 space-y-3 transition-all ${
+                  isDarkMode ? "border-slate-800 bg-slate-900/10" : "border-slate-300 bg-slate-200/20"
+                }`}
+              >
                 <div className="flex justify-between items-center">
-                  <span className="text-[9px] font-bold text-slate-500 uppercase tracking-widest flex items-center gap-1">
+                  <span
+                    className={`text-[9px] font-bold uppercase tracking-widest flex items-center gap-1 ${
+                      isDarkMode ? "text-slate-500" : "text-slate-400"
+                    }`}
+                  >
                     <Globe className="h-3 w-3" /> Live URL Preview
                   </span>
                   <span className="text-[9px] text-slate-500 font-semibold italic">updates live</span>
                 </div>
 
-                <div className="bg-slate-950 border border-slate-900 p-3.5 rounded-xl truncate text-xs text-[#00D26A] font-medium tracking-tight">
+                <div
+                  className={`border p-3.5 rounded-xl truncate text-xs text-[#00D26A] font-medium tracking-tight ${
+                    isDarkMode ? "bg-slate-950 border-slate-900" : "bg-white border-slate-200"
+                  }`}
+                >
                   cleva-borderless.io/pay/user101/{invoiceAmount || "0"}
                 </div>
               </div>
@@ -684,7 +848,9 @@ export default function Home() {
                       className={`w-full flex items-center justify-center gap-2 rounded-xl font-bold py-3.5 px-4 text-xs transition-all active:scale-[0.98] ${
                         linkCopied
                           ? "bg-emerald-500 text-slate-950"
-                          : "bg-slate-900 text-white border border-slate-800 hover:bg-slate-850"
+                          : isDarkMode
+                          ? "bg-slate-900 text-white border border-slate-800 hover:bg-slate-850"
+                          : "bg-slate-200 text-slate-850 border border-slate-300 hover:bg-slate-250"
                       }`}
                     >
                       {linkCopied ? (
@@ -698,99 +864,113 @@ export default function Home() {
                       )}
                     </button>
                     {linkCopied && (
-                      <p className="text-[10px] text-center text-emerald-400 font-medium animate-pulse">
+                      <p className="text-[10px] text-center text-emerald-500 font-semibold animate-pulse">
                         Link ready to share with global buyers!
                       </p>
                     )}
                   </div>
                 )}
               </div>
-
             </div>
           )}
         </div>
 
         {/* Interactive Bottom Navigation */}
-        <div className="z-10 border-t border-slate-900 bg-slate-950/90 px-4 pt-3 pb-6 backdrop-blur-md">
+        <div
+          className={`z-10 border-t px-4 pt-3 pb-6 backdrop-blur-md transition-all ${
+            isDarkMode ? "border-slate-900 bg-slate-950/90" : "border-slate-200 bg-slate-100/90"
+          }`}
+        >
           <nav className="flex justify-around items-center">
             {/* Dashboard Tab */}
-            <button
-              onClick={() => setActiveTab("dashboard")}
-              className="flex flex-col items-center gap-1 group"
-            >
-              <div className={`p-2 rounded-xl transition-all duration-300 ${
-                activeTab === "dashboard"
-                  ? "bg-[#00D26A]/10 text-[#00D26A]"
-                  : "text-slate-500 group-hover:text-slate-300"
-              }`}>
+            <button onClick={() => setActiveTab("dashboard")} className="flex flex-col items-center gap-1 group">
+              <div
+                className={`p-2 rounded-xl transition-all duration-300 ${
+                  activeTab === "dashboard" ? "bg-[#00D26A]/10 text-[#00D26A]" : "text-slate-500"
+                }`}
+              >
                 <Wallet className="h-5 w-5" />
               </div>
-              <span className={`text-[10px] font-medium transition-colors ${
-                activeTab === "dashboard" ? "text-white font-semibold" : "text-slate-500"
-              }`}>
+              <span
+                className={`text-[10px] font-medium transition-colors ${
+                  activeTab === "dashboard"
+                    ? isDarkMode
+                      ? "text-white font-semibold"
+                      : "text-slate-900 font-semibold"
+                    : "text-slate-500"
+                }`}
+              >
                 Dashboard
               </span>
             </button>
 
             {/* Pay / Accept Tab */}
-            <button
-              onClick={() => setActiveTab("pay")}
-              className="flex flex-col items-center gap-1 group"
-            >
-              <div className={`p-2 rounded-xl transition-all duration-300 ${
-                activeTab === "pay"
-                  ? "bg-[#00D26A]/10 text-[#00D26A]"
-                  : "text-slate-500 group-hover:text-slate-300"
-              }`}>
+            <button onClick={() => setActiveTab("pay")} className="flex flex-col items-center gap-1 group">
+              <div
+                className={`p-2 rounded-xl transition-all duration-300 ${
+                  activeTab === "pay" ? "bg-[#00D26A]/10 text-[#00D26A]" : "text-slate-500"
+                }`}
+              >
                 <QrCode className="h-5 w-5" />
               </div>
-              <span className={`text-[10px] font-medium transition-colors ${
-                activeTab === "pay" ? "text-white font-semibold" : "text-slate-500"
-              }`}>
+              <span
+                className={`text-[10px] font-medium transition-colors ${
+                  activeTab === "pay"
+                    ? isDarkMode
+                      ? "text-white font-semibold"
+                      : "text-slate-900 font-semibold"
+                    : "text-slate-500"
+                }`}
+              >
                 Pay/Accept
               </span>
             </button>
 
             {/* Wealth / Save Tab */}
-            <button
-              onClick={() => setActiveTab("save")}
-              className="flex flex-col items-center gap-1 group"
-            >
-              <div className={`p-2 rounded-xl transition-all duration-300 ${
-                activeTab === "save"
-                  ? "bg-[#00D26A]/10 text-[#00D26A]"
-                  : "text-slate-500 group-hover:text-slate-300"
-              }`}>
+            <button onClick={() => setActiveTab("save")} className="flex flex-col items-center gap-1 group">
+              <div
+                className={`p-2 rounded-xl transition-all duration-300 ${
+                  activeTab === "save" ? "bg-[#00D26A]/10 text-[#00D26A]" : "text-slate-500"
+                }`}
+              >
                 <TrendingUp className="h-5 w-5" />
               </div>
-              <span className={`text-[10px] font-medium transition-colors ${
-                activeTab === "save" ? "text-white font-semibold" : "text-slate-500"
-              }`}>
+              <span
+                className={`text-[10px] font-medium transition-colors ${
+                  activeTab === "save"
+                    ? isDarkMode
+                      ? "text-white font-semibold"
+                      : "text-slate-900 font-semibold"
+                    : "text-slate-500"
+                }`}
+              >
                 StableSave
               </span>
             </button>
 
             {/* Invoicing / Links Tab */}
-            <button
-              onClick={() => setActiveTab("earn")}
-              className="flex flex-col items-center gap-1 group"
-            >
-              <div className={`p-2 rounded-xl transition-all duration-300 ${
-                activeTab === "earn"
-                  ? "bg-[#00D26A]/10 text-[#00D26A]"
-                  : "text-slate-500 group-hover:text-slate-300"
-              }`}>
+            <button onClick={() => setActiveTab("earn")} className="flex flex-col items-center gap-1 group">
+              <div
+                className={`p-2 rounded-xl transition-all duration-300 ${
+                  activeTab === "earn" ? "bg-[#00D26A]/10 text-[#00D26A]" : "text-slate-500"
+                }`}
+              >
                 <Link2 className="h-5 w-5" />
               </div>
-              <span className={`text-[10px] font-medium transition-colors ${
-                activeTab === "earn" ? "text-white font-semibold" : "text-slate-500"
-              }`}>
+              <span
+                className={`text-[10px] font-medium transition-colors ${
+                  activeTab === "earn"
+                    ? isDarkMode
+                      ? "text-white font-semibold"
+                      : "text-slate-900 font-semibold"
+                    : "text-slate-500"
+                }`}
+              >
                 PayLinks
               </span>
             </button>
           </nav>
         </div>
-
       </div>
     </main>
   );
