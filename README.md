@@ -43,7 +43,7 @@ The prototype runs in a fully constrained native mobile device frame (`max-w-md 
 
 1. **Clone the repository:**
    ```bash
-   git clone https://github.com/YOUR_USERNAME/cleva-borderless.git
+   git clone https://github.com/aanasiru20/Cleava_Borderless.git
    cd cleva-borderless
    ```
 
