@@ -28,7 +28,7 @@ import {
 } from "lucide-react";
 
 type Persona = "Freelancer" | "Merchant" | "User";
-type Tab = "dashboard" | "pay" | "save" | "earn";
+type Tab = "dashboard" | "pay" | "save" | "earn" | "swap";
 
 export default function Home() {
   const [currentPersona, setCurrentPersona] = useState<Persona>("User");
@@ -372,9 +372,12 @@ export default function Home() {
                     >
                       Total Balance
                     </span>
-                    <span className="inline-flex items-center gap-1 text-[10px] font-medium bg-[#00D26A]/10 text-[#00D26A] px-2.5 py-0.5 rounded-full">
+                    <button 
+                      onClick={() => setActiveTab("swap")}
+                      className="relative z-10 inline-flex items-center gap-1 text-[10px] font-medium bg-[#00D26A]/10 text-[#00D26A] hover:bg-[#00D26A]/20 px-2.5 py-0.5 rounded-full transition-all active:scale-95 cursor-pointer"
+                    >
                       <Sparkles className="h-3 w-3" /> Live Swap
-                    </span>
+                    </button>
                   </div>
 
                   <div className="space-y-1">
@@ -870,6 +873,90 @@ export default function Home() {
                     )}
                   </div>
                 )}
+              </div>
+            </div>
+          )}
+
+          {/* Live Swap / Balances View */}
+          {activeTab === "swap" && (
+            <div className="space-y-6">
+              <div className="flex items-center justify-between">
+                <div className="space-y-1">
+                  <h2
+                    className={`text-xl font-bold transition-colors ${
+                      isDarkMode ? "text-white" : "text-slate-900"
+                    }`}
+                  >
+                    Your Balances
+                  </h2>
+                  <p className={`text-xs ${isDarkMode ? "text-slate-400" : "text-slate-500"}`}>
+                    Manage your funds across multiple currencies
+                  </p>
+                </div>
+              </div>
+
+              <div className="space-y-4">
+                {/* Naira Balance */}
+                <div
+                  className={`relative overflow-hidden rounded-2xl p-5 border shadow-md transition-all hover:scale-[1.01] ${
+                    isDarkMode
+                      ? "bg-slate-900/60 border-slate-800 text-white"
+                      : "bg-white border-slate-200 text-slate-900"
+                  }`}
+                >
+                  <div className="absolute top-0 right-0 h-16 w-16 bg-green-500/10 rounded-bl-full filter blur-lg" />
+                  <div className="flex items-center justify-between mb-2">
+                    <span className={`text-sm font-semibold flex items-center gap-2 ${isDarkMode ? "text-slate-200" : "text-slate-700"}`}>
+                      <span className="flex h-6 w-6 items-center justify-center rounded-full bg-green-500/20 text-green-500">₦</span>
+                      Naira (NGN)
+                    </span>
+                  </div>
+                  <div className="text-2xl font-extrabold tracking-tight">
+                    ₦{nairaBalance.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                  </div>
+                </div>
+
+                {/* Dollar Balance */}
+                <div
+                  className={`relative overflow-hidden rounded-2xl p-5 border shadow-md transition-all hover:scale-[1.01] ${
+                    isDarkMode
+                      ? "bg-slate-900/60 border-slate-800 text-white"
+                      : "bg-white border-slate-200 text-slate-900"
+                  }`}
+                >
+                  <div className="absolute top-0 right-0 h-16 w-16 bg-blue-500/10 rounded-bl-full filter blur-lg" />
+                  <div className="flex items-center justify-between mb-2">
+                    <span className={`text-sm font-semibold flex items-center gap-2 ${isDarkMode ? "text-slate-200" : "text-slate-700"}`}>
+                      <span className="flex h-6 w-6 items-center justify-center rounded-full bg-blue-500/20 text-blue-500">$</span>
+                      US Dollar (USD)
+                    </span>
+                  </div>
+                  <div className="text-2xl font-extrabold tracking-tight">
+                    ${usdtBalance.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                  </div>
+                </div>
+
+                {/* Stable Coin Balance */}
+                <div
+                  className={`relative overflow-hidden rounded-2xl p-5 border shadow-md transition-all hover:scale-[1.01] ${
+                    isDarkMode
+                      ? "bg-gradient-to-br from-[#00D26A]/10 to-[#009393]/10 border-[#00D26A]/30 text-white"
+                      : "bg-gradient-to-br from-[#00D26A]/5 to-[#009393]/5 border-[#00D26A]/20 text-slate-900"
+                  }`}
+                >
+                  <div className="flex items-center justify-between mb-2">
+                    <span className={`text-sm font-semibold flex items-center gap-2 ${isDarkMode ? "text-slate-200" : "text-slate-700"}`}>
+                      <span className="flex h-6 w-6 items-center justify-center rounded-full bg-[#00D26A]/20 text-[#00D26A]">₮</span>
+                      Tether (USDT)
+                    </span>
+                    <span className="text-[9px] font-bold text-[#00D26A] bg-[#00D26A]/10 border border-[#00D26A]/20 px-2 py-0.5 rounded-full uppercase tracking-wider">
+                      Stable Coin
+                    </span>
+                  </div>
+                  <div className={`text-2xl font-extrabold tracking-tight ${isDarkMode ? "text-white" : "text-slate-900"}`}>
+                    {usdtBalance.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} <span className="text-sm font-semibold text-[#009393]">USDT</span>
+                  </div>
+                </div>
               </div>
             </div>
           )}
