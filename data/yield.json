@@ -4,9 +4,9 @@
       "id": "vault-freelancer-123",
       "user_id": "freelancer-123",
       "principal": 50,
-      "accrued_yield": 1108.7348902694062,
+      "accrued_yield": 1109.3169764794518,
       "apy": 8,
-      "last_accrued_at": "2026-10-13T20:49:06.646Z",
+      "last_accrued_at": "2026-10-13T21:42:13.568Z",
       "is_active": true,
       "is_locked": false,
       "deposited_at": "2026-08-04T18:00:00Z",
@@ -166,6 +166,96 @@
       "balance_after": 1158.7348902694062,
       "note": "Yield accrued automatically",
       "created_at": "2026-10-13T20:49:06.646Z"
+    },
+    {
+      "id": "7da87044-31ca-4522-b82b-abf6b5b8e66f",
+      "user_id": "freelancer-123",
+      "type": "yield_credit",
+      "amount": 0.006279634703196346,
+      "balance_after": 1158.7411699041093,
+      "note": "Yield accrued automatically",
+      "created_at": "2026-10-13T20:49:41.027Z"
+    },
+    {
+      "id": "0d01fc99-5e89-4328-bd6b-ee8e72258740",
+      "user_id": "freelancer-123",
+      "type": "yield_credit",
+      "amount": 0.005068310502283105,
+      "balance_after": 1158.7462382146116,
+      "note": "Yield accrued automatically",
+      "created_at": "2026-10-13T20:50:08.776Z"
+    },
+    {
+      "id": "23d84836-36c6-469c-a603-276fc3c87939",
+      "user_id": "freelancer-123",
+      "type": "yield_credit",
+      "amount": 0.003137351598173516,
+      "balance_after": 1158.7493755662097,
+      "note": "Yield accrued automatically",
+      "created_at": "2026-10-13T20:50:25.953Z"
+    },
+    {
+      "id": "70faec12-0378-4b00-89b1-d2a4761f3382",
+      "user_id": "freelancer-123",
+      "type": "yield_credit",
+      "amount": 0.007295890410958903,
+      "balance_after": 1158.7566714566206,
+      "note": "Yield accrued automatically",
+      "created_at": "2026-10-13T20:51:05.898Z"
+    },
+    {
+      "id": "f615b510-f7a2-4f5a-ae1a-c11f287d3e92",
+      "user_id": "freelancer-123",
+      "type": "yield_credit",
+      "amount": 0.010422465753424657,
+      "balance_after": 1158.767093922374,
+      "note": "Yield accrued automatically",
+      "created_at": "2026-10-13T20:52:02.961Z"
+    },
+    {
+      "id": "f8e17666-5a67-44ec-8ca2-6d0e5a137840",
+      "user_id": "freelancer-123",
+      "type": "yield_credit",
+      "amount": 0.011351780821917807,
+      "balance_after": 1158.778445703196,
+      "note": "Yield accrued automatically",
+      "created_at": "2026-10-13T20:53:05.112Z"
+    },
+    {
+      "id": "53f182ce-4761-49d3-85bf-2a9cf65a1fd8",
+      "user_id": "freelancer-123",
+      "type": "yield_credit",
+      "amount": 0.0070337899543379,
+      "balance_after": 1158.7854794931504,
+      "note": "Yield accrued automatically",
+      "created_at": "2026-10-13T20:53:43.622Z"
+    },
+    {
+      "id": "7c6abc87-3bbb-4816-bff1-316e66996d6e",
+      "user_id": "freelancer-123",
+      "type": "yield_credit",
+      "amount": 0.2902566210045662,
+      "balance_after": 1159.075736114155,
+      "note": "Yield accrued automatically",
+      "created_at": "2026-10-13T21:20:12.777Z"
+    },
+    {
+      "id": "a2f333e4-67e8-4fe9-af02-6c3fb934ff83",
+      "user_id": "freelancer-123",
+      "type": "yield_credit",
+      "amount": 0.0008854794520547944,
+      "balance_after": 1159.0766215936071,
+      "note": "Yield accrued automatically",
+      "created_at": "2026-10-13T21:20:17.625Z"
+    },
+    {
+      "id": "ec15739a-f565-4d92-910a-a2d4ed5f7039",
+      "user_id": "freelancer-123",
+      "type": "yield_credit",
+      "amount": 0.24035488584474884,
+      "balance_after": 1159.3169764794518,
+      "note": "Yield accrued automatically",
+      "created_at": "2026-10-13T21:42:13.568Z"
     }
   ]
 }
