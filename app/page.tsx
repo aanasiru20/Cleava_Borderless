@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import {
   Wallet,
   QrCode,
@@ -8,6 +9,7 @@ import {
   Link2,
   ArrowUpRight,
   ArrowDownLeft,
+  ArrowDownToLine,
   ChevronRight,
   Plus,
   Send,
@@ -24,15 +26,59 @@ import {
   Globe,
   FileText,
   Sun,
-  Moon
+  Moon,
+  Users,
+  Store,
+  Landmark
 } from "lucide-react";
 
 type Persona = "Freelancer" | "Merchant" | "User";
 type Tab = "dashboard" | "pay" | "save" | "earn" | "swap";
 
 export default function Home() {
+  const router = useRouter();
   const [currentPersona, setCurrentPersona] = useState<Persona>("User");
   const [activeTab, setActiveTab] = useState<Tab>("dashboard");
+  const [activeLoan, setActiveLoan] = useState<any>(null);
+  const [toastMessage, setToastMessage] = useState<string | null>(null);
+
+  useEffect(() => {
+    const savedToast = sessionStorage.getItem('cleva_toast');
+    if (savedToast) {
+      setToastMessage(savedToast);
+      sessionStorage.removeItem('cleva_toast');
+      const timer = setTimeout(() => setToastMessage(null), 3000);
+      return () => clearTimeout(timer);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetch("/api/loans")
+      .then(res => res.json())
+      .then(data => setActiveLoan(data?.activeLoan))
+      .catch(console.error);
+      
+    fetch("/api/diaspora?studentId=freelancer-123")
+      .then(res => res.json())
+      .then(data => {
+        if (data.transfers?.length > 0) {
+          setDiasporaTransfers(data.transfers);
+          // Auto add the first unseen transfer to balance for demo purposes
+          setUsdtBalance(prev => prev + data.transfers[0].amount_usdt);
+        }
+      })
+      .catch(console.error);
+  }, []);
+
+  const dismissDiaspora = (id: string) => {
+    fetch("/api/diaspora", { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ transfer_id: id }) });
+    setDiasporaTransfers(prev => prev.filter(t => t.id !== id));
+  };
+  
+  const shareDiasporaLink = () => {
+    navigator.clipboard.writeText("Send me my allowance instantly via Cleva Borderless — zero wire fees, arrives in seconds. Click here: cleava-borderless.vercel.app/diaspora/freelancer-123");
+    alert("Diaspora allowance link copied to clipboard!");
+  };
 
   // Accessibility State (Premium Dark Mode by Default)
   const [isDarkMode, setIsDarkMode] = useState<boolean>(true);
@@ -54,6 +100,15 @@ export default function Home() {
   const [hasGenerated, setHasGenerated] = useState<boolean>(false);
   const [linkCopied, setLinkCopied] = useState<boolean>(false);
 
+  // Escrow States
+  const [isEscrow, setIsEscrow] = useState<boolean>(false);
+  const [clientEmail, setClientEmail] = useState<string>("");
+  const [generatedEscrowCode, setGeneratedEscrowCode] = useState<string>("");
+  const [escrows, setEscrows] = useState<any[]>([]);
+  
+  // Diaspora States
+  const [diasporaTransfers, setDiasporaTransfers] = useState<any[]>([]);
+
   const NGN_RATE = 1700; // ₦1700 per USDT
 
   // Update default description when persona changes
@@ -68,6 +123,16 @@ export default function Home() {
     // Reset generation state on persona change
     setHasGenerated(false);
     setLinkCopied(false);
+    setIsEscrow(false);
+    setGeneratedEscrowCode("");
+    
+    // Fetch escrows if Freelancer
+    if (currentPersona === "Freelancer") {
+      fetch("/api/escrow?freelancer_id=freelancer-123")
+        .then(res => res.json())
+        .then(data => setEscrows(data || []))
+        .catch(console.error);
+    }
   }, [currentPersona]);
 
   // Dynamic Header Configuration
@@ -213,9 +278,37 @@ export default function Home() {
   };
 
   // Generate Secure Link Simulation
-  const handleGenerateLink = () => {
+  const handleGenerateLink = async () => {
     setIsGenerating(true);
     setLinkCopied(false);
+    
+    if (isEscrow) {
+      try {
+        const res = await fetch("/api/escrow", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            freelancer_id: "freelancer-123", // mock ID
+            client_email: clientEmail,
+            amount_usdt: invoiceAmount,
+            job_description: invoiceDescription,
+          }),
+        });
+        const data = await res.json();
+        if (data.escrow_code) {
+          setGeneratedEscrowCode(data.escrow_code);
+          // Refresh list
+          const listRes = await fetch("/api/escrow?freelancer_id=freelancer-123");
+          const listData = await listRes.json();
+          setEscrows(listData || []);
+        }
+      } catch (error) {
+        console.error("Error creating escrow:", error);
+      }
+    } else {
+      setGeneratedEscrowCode("");
+    }
+
     setTimeout(() => {
       setIsGenerating(false);
       setHasGenerated(true);
@@ -233,6 +326,12 @@ export default function Home() {
 
   return (
     <main className="flex min-h-screen items-center justify-center bg-slate-900 p-4 font-sans antialiased">
+      {toastMessage && (
+        <div className="fixed top-4 left-4 right-4 z-[9999] bg-[#16a34a] text-white p-4 rounded-xl shadow-lg font-medium text-center animate-fadeIn max-w-md mx-auto">
+          {toastMessage}
+        </div>
+      )}
+
       {/* Mobile Device Frame Container (Dynamic Theme Color classes) */}
       <div
         className={`relative flex h-[850px] w-full max-w-md flex-col overflow-hidden rounded-[40px] border shadow-2xl ring-1 ring-slate-800/50 transition-all duration-300 ${
@@ -354,6 +453,40 @@ export default function Home() {
                 </p>
               </div>
 
+              {/* Loan Health Indicator */}
+              {activeLoan && (
+                <div onClick={() => router.push("/loans")} className="bg-amber-500/10 border border-amber-500/30 rounded-2xl p-3 flex justify-between items-center cursor-pointer hover:bg-amber-500/20 transition-colors animate-pulse">
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm">📋</span>
+                    <div>
+                      <p className="text-[10px] font-bold text-amber-500">Loan due in {Math.ceil((new Date(activeLoan.due_at).getTime() - Date.now()) / 86400000)} days</p>
+                      <p className="text-[9px] text-amber-500/80">${activeLoan.total_repayable.toFixed(2)} USDT</p>
+                    </div>
+                  </div>
+                  <div className="text-[9px] font-bold text-amber-500 bg-amber-500/20 px-2 py-1 rounded-lg">
+                    Repay Now →
+                  </div>
+                </div>
+              )}
+
+              {/* Diaspora Transfers Banner */}
+              {diasporaTransfers.map((t) => (
+                <div key={t.id} className="bg-[#00D26A]/10 border-l-4 border-[#00D26A] rounded-r-2xl p-4 flex flex-col gap-2 relative">
+                  <button onClick={() => dismissDiaspora(t.id)} className="absolute top-2 right-3 text-[#00D26A] font-bold text-lg hover:text-white transition-colors">×</button>
+                  <div className="flex items-center gap-2">
+                    <span className="text-xl">💰</span>
+                    <h3 className="font-bold text-[#00D26A]">Allowance Received!</h3>
+                  </div>
+                  <p className="text-xs font-semibold text-white">${t.amount_usdt.toFixed(2)} USDT from {t.sender_name} ({t.sender_country})</p>
+                  {t.personal_message && <p className="text-xs text-slate-300 italic">"{t.personal_message}"</p>}
+                  <p className="text-[10px] text-slate-400 mt-1">Arrived just now · Zero fees</p>
+                  <div className="flex gap-2 mt-3">
+                    <button onClick={() => dismissDiaspora(t.id)} className="text-[10px] font-bold bg-[#00D26A] text-slate-900 px-4 py-2 rounded-xl">View Receipt</button>
+                    <button onClick={() => dismissDiaspora(t.id)} className="text-[10px] font-bold bg-slate-800 text-white px-4 py-2 rounded-xl border border-slate-700">Save to Vault</button>
+                  </div>
+                </div>
+              ))}
+
               {/* Unified Balance Card */}
               <div
                 className={`relative overflow-hidden rounded-2xl p-6 border shadow-xl transition-all ${
@@ -414,8 +547,36 @@ export default function Home() {
                       );
                     })}
                   </div>
+
+                  {/* Add Money Button */}
+                  <button
+                    onClick={() => router.push("/add-money")}
+                    className="w-full flex items-center justify-center gap-2 rounded-xl bg-[#16a34a] hover:brightness-110 text-white text-xs font-bold py-2.5 transition-all active:scale-[0.98] shadow-md shadow-[#16a34a]/20"
+                  >
+                    <ArrowDownToLine className="h-3.5 w-3.5" />
+                    + Add Money
+                  </button>
                 </div>
               </div>
+              
+              {/* Share Diaspora Link Button */}
+              <button 
+                onClick={shareDiasporaLink}
+                className="w-full flex items-center justify-between bg-gradient-to-r from-purple-900/40 to-blue-900/40 border border-purple-500/20 rounded-2xl p-4 transition-all hover:bg-purple-900/60 active:scale-[0.98]"
+              >
+                <div className="flex items-center gap-3">
+                  <div className="h-10 w-10 rounded-full bg-purple-500/20 flex items-center justify-center border border-purple-500/30">
+                    <Globe className="h-5 w-5 text-purple-400" />
+                  </div>
+                  <div className="text-left">
+                    <h3 className="text-sm font-bold text-white">Share Allowance Link</h3>
+                    <p className="text-[10px] text-slate-400 mt-0.5">Receive USDT instantly from abroad</p>
+                  </div>
+                </div>
+                <div className="h-8 w-8 rounded-full bg-slate-800 flex items-center justify-center border border-slate-700">
+                  <Copy className="h-4 w-4 text-slate-300" />
+                </div>
+              </button>
 
               {/* Dynamic Transaction Activity Feed */}
               <div className="space-y-3">
@@ -473,6 +634,68 @@ export default function Home() {
                   ))}
                 </div>
               </div>
+
+              {/* Escrow Transactions Section (Freelancer Only) */}
+              {currentPersona === "Freelancer" && (
+                <div className="space-y-3 pt-4 border-t border-slate-800">
+                  <div className="flex justify-between items-center">
+                    <h3 className={`text-xs font-bold uppercase tracking-widest ${isDarkMode ? "text-slate-400" : "text-slate-500"}`}>
+                      Active Escrows
+                    </h3>
+                  </div>
+                  <div className="space-y-2">
+                    {escrows.length === 0 ? (
+                      <div className="text-xs text-slate-500 text-center py-4">No active escrow jobs.</div>
+                    ) : (
+                      escrows.map((escrow) => (
+                        <div key={escrow.id} className={`rounded-xl p-3 border ${isDarkMode ? "bg-slate-900/40 border-slate-900" : "bg-white border-slate-200"}`}>
+                          <div className="flex justify-between items-start mb-2">
+                            <div>
+                              <div className={`text-xs font-semibold ${isDarkMode ? "text-white" : "text-slate-950"}`}>
+                                {escrow.job_description}
+                              </div>
+                              <div className="text-[10px] text-slate-500">Client: {escrow.client_email || "N/A"}</div>
+                            </div>
+                            <div className="text-right">
+                              <div className="text-xs font-bold text-[#00D26A]">${escrow.amount_usdt.toFixed(2)} USDT</div>
+                              <div className={`text-[9px] font-bold px-1.5 py-0.5 rounded-sm uppercase inline-block ${
+                                escrow.status === "funded" ? "bg-amber-500/10 text-amber-500" :
+                                escrow.status === "delivered" ? "bg-blue-500/10 text-blue-500" :
+                                "bg-emerald-500/10 text-emerald-500"
+                              }`}>
+                                {escrow.status}
+                              </div>
+                            </div>
+                          </div>
+                          
+                          {/* Deliver Button */}
+                          {escrow.status === "funded" && (
+                            <button
+                              onClick={async () => {
+                                await fetch(`/api/escrow/${escrow.escrow_code}`, {
+                                  method: "PATCH",
+                                  headers: { "Content-Type": "application/json" },
+                                  body: JSON.stringify({ status: "delivered" }),
+                                });
+                                const res = await fetch("/api/escrow?freelancer_id=freelancer-123");
+                                const data = await res.json();
+                                setEscrows(data || []);
+                              }}
+                              className="w-full mt-2 rounded-lg bg-blue-500/10 hover:bg-blue-500/20 text-blue-500 text-[10px] font-bold py-1.5 transition-colors"
+                            >
+                              Mark as Delivered
+                            </button>
+                          )}
+                          
+                          <div className="mt-2 text-[9px] text-slate-500 truncate">
+                            Link: <a href={`/escrow/${escrow.escrow_code}`} target="_blank" rel="noreferrer" className="text-[#00D26A] hover:underline">/escrow/{escrow.escrow_code}</a>
+                          </div>
+                        </div>
+                      ))
+                    )}
+                  </div>
+                </div>
+              )}
             </div>
           )}
 
@@ -771,6 +994,59 @@ export default function Home() {
                   </div>
                 </div>
 
+                {/* Escrow Toggle */}
+                {currentPersona === "Freelancer" && (
+                  <div className="flex items-center justify-between border-b border-dashed border-slate-700/50 pb-4 pt-2">
+                    <div>
+                      <div className={`text-xs font-bold ${isDarkMode ? "text-white" : "text-slate-900"}`}>Escrow Payment</div>
+                      <div className="text-[10px] text-slate-500">Hold funds until work is delivered</div>
+                    </div>
+                    <label className="relative inline-flex items-center cursor-pointer">
+                      <input 
+                        type="checkbox" 
+                        className="sr-only peer"
+                        checked={isEscrow}
+                        onChange={(e) => {
+                          setIsEscrow(e.target.checked);
+                          setHasGenerated(false);
+                        }}
+                      />
+                      <div className="w-9 h-5 bg-slate-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-[#00D26A]"></div>
+                    </label>
+                  </div>
+                )}
+                
+                {/* Client Email Input (only if Escrow) */}
+                {isEscrow && (
+                  <div className="space-y-1.5 animate-fadeIn">
+                    <label
+                      className={`text-[10px] font-bold uppercase tracking-wider block ${
+                        isDarkMode ? "text-slate-400" : "text-slate-500"
+                      }`}
+                    >
+                      Client Email
+                    </label>
+                    <div
+                      className={`flex items-center gap-2 border rounded-xl px-3.5 py-2.5 transition-all ${
+                        isDarkMode ? "border-slate-850 bg-slate-950" : "border-slate-200 bg-white"
+                      }`}
+                    >
+                      <input
+                        type="email"
+                        value={clientEmail}
+                        onChange={(e) => {
+                          setClientEmail(e.target.value);
+                          setHasGenerated(false);
+                        }}
+                        className={`bg-transparent text-sm font-medium outline-none w-full ${
+                          isDarkMode ? "text-white" : "text-slate-900"
+                        }`}
+                        placeholder="client@example.com"
+                      />
+                    </div>
+                  </div>
+                )}
+
                 {/* Description Input */}
                 <div className="space-y-1.5">
                   <label
@@ -824,7 +1100,9 @@ export default function Home() {
                     isDarkMode ? "bg-slate-950 border-slate-900" : "bg-white border-slate-200"
                   }`}
                 >
-                  cleva-borderless.io/pay/user101/{invoiceAmount || "0"}
+                  {hasGenerated && isEscrow 
+                    ? `cleava-borderless.vercel.app/escrow/${generatedEscrowCode}` 
+                    : `cleava-borderless.io/pay/user101/${invoiceAmount || "0"}`}
                 </div>
               </div>
 
@@ -991,69 +1269,44 @@ export default function Home() {
               </span>
             </button>
 
-            {/* Pay / Accept Tab */}
-            <button onClick={() => setActiveTab("pay")} className="flex flex-col items-center gap-1 group">
-              <div
-                className={`p-2 rounded-xl transition-all duration-300 ${
-                  activeTab === "pay" ? "bg-[#00D26A]/10 text-[#00D26A]" : "text-slate-500"
-                }`}
-              >
-                <QrCode className="h-5 w-5" />
+            {/* Loans Tab */}
+            <button onClick={() => router.push("/loans")} className="flex flex-col items-center gap-1 group">
+              <div className="p-2 rounded-xl transition-all duration-300 text-slate-500 group-hover:text-[#00D26A] group-hover:bg-[#00D26A]/10">
+                <Landmark className="h-5 w-5" />
               </div>
-              <span
-                className={`text-[10px] font-medium transition-colors ${
-                  activeTab === "pay"
-                    ? isDarkMode
-                      ? "text-white font-semibold"
-                      : "text-slate-900 font-semibold"
-                    : "text-slate-500"
-                }`}
-              >
-                Pay/Accept
+              <span className="text-[10px] font-medium text-slate-500 group-hover:text-[#00D26A] transition-colors">
+                Loans
               </span>
             </button>
 
             {/* Wealth / Save Tab */}
-            <button onClick={() => setActiveTab("save")} className="flex flex-col items-center gap-1 group">
-              <div
-                className={`p-2 rounded-xl transition-all duration-300 ${
-                  activeTab === "save" ? "bg-[#00D26A]/10 text-[#00D26A]" : "text-slate-500"
-                }`}
-              >
+            <button onClick={() => router.push("/stablesave")} className="flex flex-col items-center gap-1 group">
+              <div className="p-2 rounded-xl transition-all duration-300 text-slate-500 group-hover:text-[#00D26A] group-hover:bg-[#00D26A]/10">
                 <TrendingUp className="h-5 w-5" />
               </div>
-              <span
-                className={`text-[10px] font-medium transition-colors ${
-                  activeTab === "save"
-                    ? isDarkMode
-                      ? "text-white font-semibold"
-                      : "text-slate-900 font-semibold"
-                    : "text-slate-500"
-                }`}
-              >
+              <span className="text-[10px] font-medium text-slate-500 group-hover:text-[#00D26A] transition-colors">
                 StableSave
               </span>
             </button>
 
-            {/* Invoicing / Links Tab */}
-            <button onClick={() => setActiveTab("earn")} className="flex flex-col items-center gap-1 group">
-              <div
-                className={`p-2 rounded-xl transition-all duration-300 ${
-                  activeTab === "earn" ? "bg-[#00D26A]/10 text-[#00D26A]" : "text-slate-500"
-                }`}
-              >
-                <Link2 className="h-5 w-5" />
+            {/* Campus Network Tab */}
+            <button onClick={() => router.push("/network")} className="flex flex-col items-center gap-1 group relative">
+              <div className="absolute -top-1 -right-1 h-2 w-2 rounded-full bg-[#00D26A] ring-2 ring-slate-950" />
+              <div className="p-2 rounded-xl transition-all duration-300 text-slate-500 group-hover:text-[#00D26A] group-hover:bg-[#00D26A]/10">
+                <Store className="h-5 w-5" />
               </div>
-              <span
-                className={`text-[10px] font-medium transition-colors ${
-                  activeTab === "earn"
-                    ? isDarkMode
-                      ? "text-white font-semibold"
-                      : "text-slate-900 font-semibold"
-                    : "text-slate-500"
-                }`}
-              >
-                PayLinks
+              <span className="text-[10px] font-medium text-slate-500 group-hover:text-[#00D26A] transition-colors">
+                Network
+              </span>
+            </button>
+
+            {/* Ajo Circles — navigates to /ajo */}
+            <button onClick={() => router.push("/ajo")} className="flex flex-col items-center gap-1 group">
+              <div className="p-2 rounded-xl transition-all duration-300 text-slate-500 group-hover:text-[#00D26A] group-hover:bg-[#00D26A]/10">
+                <Users className="h-5 w-5" />
+              </div>
+              <span className="text-[10px] font-medium text-slate-500 group-hover:text-[#00D26A] transition-colors">
+                Ajo
               </span>
             </button>
           </nav>

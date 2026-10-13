@@ -1,0 +1,168 @@
+{
+  "networks": [
+    {
+      "id": "net-1",
+      "name": "ABU Zaria Campus Network",
+      "campus": "Ahmadu Bello University",
+      "created_by": "freelancer-123",
+      "total_pool_balance": 2847.5299999999997,
+      "total_vendors": 47,
+      "total_transactions": 1205,
+      "network_code": "NET-ABU01",
+      "is_active": true,
+      "created_at": "2026-08-01T08:00:00Z"
+    }
+  ],
+  "vendors": [
+    {
+      "id": "vendor-1",
+      "network_id": "net-1",
+      "user_id": "freelancer-123",
+      "business_name": "Mama Ngozi Kitchen",
+      "category": "food",
+      "qr_code": "cleva://pay/VND-MNK01",
+      "vendor_code": "VND-MNK01",
+      "today_earnings": 47.5,
+      "total_earnings": 2847,
+      "pending_payout": 47.5,
+      "is_verified": true,
+      "joined_at": "2026-08-01T08:00:00Z"
+    },
+    {
+      "id": "vendor-2",
+      "network_id": "net-1",
+      "user_id": "user-456",
+      "business_name": "ABU Print Centre",
+      "category": "print",
+      "qr_code": "cleva://pay/VND-PRT02",
+      "vendor_code": "VND-PRT02",
+      "today_earnings": 22.12,
+      "total_earnings": 1203.12,
+      "pending_payout": 22.12,
+      "is_verified": true,
+      "joined_at": "2026-08-02T10:30:00Z"
+    },
+    {
+      "id": "vendor-3",
+      "network_id": "net-1",
+      "user_id": "user-789",
+      "business_name": "Campus Bookstore",
+      "category": "bookstore",
+      "qr_code": "cleva://pay/VND-BKS03",
+      "vendor_code": "VND-BKS03",
+      "today_earnings": 15.75,
+      "total_earnings": 890,
+      "pending_payout": 15.75,
+      "is_verified": true,
+      "joined_at": "2026-08-02T12:00:00Z"
+    },
+    {
+      "id": "vendor-4",
+      "network_id": "net-1",
+      "user_id": "user-101",
+      "business_name": "Sickbay Pharmacy",
+      "category": "pharmacy",
+      "qr_code": "cleva://pay/VND-PHM04",
+      "vendor_code": "VND-PHM04",
+      "today_earnings": 0.41,
+      "total_earnings": 340.41,
+      "pending_payout": 0.41,
+      "is_verified": false,
+      "joined_at": "2026-08-03T09:15:00Z"
+    },
+    {
+      "id": "vendor-5",
+      "network_id": "net-1",
+      "user_id": "user-102",
+      "business_name": "Tech Hub Repairs",
+      "category": "tech",
+      "qr_code": "cleva://pay/VND-TCH05",
+      "vendor_code": "VND-TCH05",
+      "today_earnings": 12,
+      "total_earnings": 450,
+      "pending_payout": 12,
+      "is_verified": true,
+      "joined_at": "2026-08-04T10:00:00Z"
+    }
+  ],
+  "transactions": [
+    {
+      "id": "tx-1",
+      "network_id": "net-1",
+      "vendor_id": "vendor-1",
+      "payer_user_id": "user-999",
+      "amount_usdt": 2.5,
+      "naira_equivalent": 4250,
+      "item_description": "Jollof rice + water",
+      "status": "settled",
+      "settled_at": "2026-08-04T22:20:00Z"
+    },
+    {
+      "id": "tx-2",
+      "network_id": "net-1",
+      "vendor_id": "vendor-1",
+      "payer_user_id": "user-888",
+      "amount_usdt": 1.2,
+      "naira_equivalent": 2040,
+      "item_description": "Bottled water x2",
+      "status": "settled",
+      "settled_at": "2026-08-04T22:05:00Z"
+    },
+    {
+      "id": "tx-3",
+      "network_id": "net-1",
+      "vendor_id": "vendor-1",
+      "payer_user_id": "user-777",
+      "amount_usdt": 5,
+      "naira_equivalent": 8500,
+      "item_description": "Lunch combo",
+      "status": "settled",
+      "settled_at": "2026-08-04T21:20:00Z"
+    },
+    {
+      "id": "tx-4",
+      "network_id": "net-1",
+      "vendor_id": "vendor-1",
+      "payer_user_id": "user-666",
+      "amount_usdt": 3,
+      "naira_equivalent": 5100,
+      "item_description": "Meat pie & drink",
+      "status": "settled",
+      "settled_at": "2026-08-04T18:30:00Z"
+    },
+    {
+      "id": "tx-5",
+      "network_id": "net-1",
+      "vendor_id": "vendor-1",
+      "payer_user_id": "user-555",
+      "amount_usdt": 35.8,
+      "naira_equivalent": 60860,
+      "item_description": "Catering order",
+      "status": "settled",
+      "settled_at": "2026-08-04T12:00:00Z"
+    },
+    {
+      "id": "514c8c03-b871-4101-9e74-eebcda23cadb",
+      "network_id": "net-1",
+      "vendor_id": "vendor-4",
+      "payer_user_id": "user-current-student",
+      "amount_usdt": 0.41,
+      "naira_equivalent": 700,
+      "item_description": "Paracetamol",
+      "status": "settled",
+      "settled_at": "2026-08-04T21:38:40.901Z"
+    },
+    {
+      "id": "34b2af08-49fb-4134-83b2-fa33b55c2840",
+      "network_id": "net-1",
+      "vendor_id": "vendor-2",
+      "payer_user_id": "user-current-student",
+      "amount_usdt": 0.12,
+      "naira_equivalent": 200,
+      "item_description": "photocopy",
+      "status": "settled",
+      "settled_at": "2026-08-04T21:39:10.313Z"
+    }
+  ],
+  "payouts": []
+}

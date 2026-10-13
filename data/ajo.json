@@ -1,0 +1,528 @@
+{
+  "circles": [
+    {
+      "id": "circle-abu-cs-001",
+      "name": "ABU CS Squad",
+      "created_by": "user-ada-001",
+      "contribution_amount": 10,
+      "currency": "USDT",
+      "frequency": "weekly",
+      "max_members": 5,
+      "status": "active",
+      "current_round": 4,
+      "invite_code": "AJO-7B3K",
+      "created_at": "2026-07-01T10:00:00Z"
+    },
+    {
+      "name": "SMth",
+      "contribution_amount": 5,
+      "currency": "USDT",
+      "frequency": "weekly",
+      "max_members": 5,
+      "created_by": "freelancer-123",
+      "id": "2f283ba7-ede2-4b87-8056-e29422f240c8",
+      "status": "forming",
+      "current_round": 1,
+      "invite_code": "AJO-P8SK",
+      "created_at": "2026-08-04T21:08:02.105Z"
+    }
+  ],
+  "members": [
+    {
+      "id": "member-ada",
+      "circle_id": "circle-abu-cs-001",
+      "user_id": "user-ada-001",
+      "display_name": "Ada",
+      "payout_position": 1,
+      "has_received_payout": true,
+      "joined_at": "2026-07-01T10:00:00Z",
+      "collateral_amount": 10,
+      "collateral_status": "locked",
+      "collateral_locked_at": "2026-07-01T10:00:00Z",
+      "missed_contributions": 0,
+      "commitment_tx_hash": "TX3f9a2b8c1d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a",
+      "signed_contract_at": "2026-07-01T10:00:00Z",
+      "mandate_preview_signed": true
+    },
+    {
+      "id": "member-dele",
+      "circle_id": "circle-abu-cs-001",
+      "user_id": "user-dele-002",
+      "display_name": "Dele",
+      "payout_position": 2,
+      "has_received_payout": true,
+      "joined_at": "2026-07-01T10:05:00Z",
+      "collateral_amount": 7,
+      "collateral_status": "locked",
+      "collateral_locked_at": "2026-07-01T10:05:00Z",
+      "missed_contributions": 1,
+      "commitment_tx_hash": "TX7e3b1a9c2d8f4e6b5a7c9d1e0f2b4c6d8e0a2b4c6d8e0f2a4b6c8d0e2f4a6b8c",
+      "signed_contract_at": "2026-07-01T10:05:00Z",
+      "mandate_preview_signed": true
+    },
+    {
+      "id": "member-kofi",
+      "circle_id": "circle-abu-cs-001",
+      "user_id": "freelancer-123",
+      "display_name": "Kofi",
+      "payout_position": 3,
+      "has_received_payout": true,
+      "joined_at": "2026-07-01T10:10:00Z",
+      "collateral_amount": 10,
+      "collateral_status": "locked",
+      "collateral_locked_at": "2026-07-01T10:10:00Z",
+      "missed_contributions": 0,
+      "commitment_tx_hash": "TX9c1e3a7b2d5f8e4a6b0c2d4e6f8a0b2c4d6e8f0a2b4c6d8e0f2a4b6c8d0e2f4a",
+      "signed_contract_at": "2026-07-01T10:10:00Z",
+      "mandate_preview_signed": false
+    },
+    {
+      "id": "member-tunde",
+      "circle_id": "circle-abu-cs-001",
+      "user_id": "user-tunde-004",
+      "display_name": "Tunde",
+      "payout_position": 4,
+      "has_received_payout": false,
+      "joined_at": "2026-07-01T10:15:00Z",
+      "collateral_amount": 10,
+      "collateral_status": "locked",
+      "collateral_locked_at": "2026-07-01T10:15:00Z",
+      "missed_contributions": 0,
+      "commitment_tx_hash": "TX1a3b5c7d9e0f2a4b6c8d0e2f4a6b8c0d2e4f6a8b0c2d4e6f8a0b2c4d6e8f0a2b",
+      "signed_contract_at": "2026-07-01T10:15:00Z",
+      "mandate_preview_signed": true
+    },
+    {
+      "id": "member-ngozi",
+      "circle_id": "circle-abu-cs-001",
+      "user_id": "user-ngozi-005",
+      "display_name": "Ngozi",
+      "payout_position": 5,
+      "has_received_payout": false,
+      "joined_at": "2026-07-01T10:20:00Z",
+      "collateral_amount": 10,
+      "collateral_status": "locked",
+      "collateral_locked_at": "2026-07-01T10:20:00Z",
+      "missed_contributions": 0,
+      "commitment_tx_hash": "TX5b7c9d1e3f5a7b9c1d3e5f7a9b1c3d5e7f9a1b3c5d7e9f1a3b5c7d9e1f3a5b7c",
+      "signed_contract_at": "2026-07-01T10:20:00Z",
+      "mandate_preview_signed": false
+    },
+    {
+      "id": "1c0c0a08-a96f-4d22-9529-feff7e26357d",
+      "circle_id": "2f283ba7-ede2-4b87-8056-e29422f240c8",
+      "user_id": "freelancer-123",
+      "display_name": "Me",
+      "payout_position": 1,
+      "has_received_payout": false,
+      "joined_at": "2026-08-04T21:08:02.106Z",
+      "collateral_amount": 5,
+      "collateral_status": "locked",
+      "collateral_locked_at": "2026-08-04T21:08:02.106Z",
+      "missed_contributions": 0,
+      "commitment_tx_hash": "TX439eeb04252a6af691a2177bd992e3ded7476043ec791c1c4550b586b900d02a",
+      "signed_contract_at": "2026-08-04T21:08:02.106Z",
+      "mandate_preview_signed": false
+    },
+    {
+      "id": "c7ba063f-eab6-4216-b28b-aafde57464de",
+      "circle_id": "2f283ba7-ede2-4b87-8056-e29422f240c8",
+      "user_id": "user-zg5sm4y1",
+      "display_name": "Tomi",
+      "payout_position": 2,
+      "has_received_payout": false,
+      "joined_at": "2026-08-05T21:18:53.016Z",
+      "collateral_amount": 5,
+      "collateral_status": "locked",
+      "collateral_locked_at": "2026-08-05T21:18:53.017Z",
+      "missed_contributions": 0,
+      "commitment_tx_hash": "TX684d1df7b49c328deed7c0a4f89a33fef5c1b6c690ac747186f5a70f97ca6ff7",
+      "signed_contract_at": "2026-08-05T21:18:53.017Z",
+      "mandate_preview_signed": false
+    }
+  ],
+  "contributions": [
+    {
+      "id": "contrib-r1-ada",
+      "circle_id": "circle-abu-cs-001",
+      "member_id": "member-ada",
+      "round_number": 1,
+      "amount": 10,
+      "status": "paid",
+      "paid_at": "2026-07-08T09:00:00Z",
+      "created_at": "2026-07-08T00:00:00Z"
+    },
+    {
+      "id": "contrib-r1-dele",
+      "circle_id": "circle-abu-cs-001",
+      "member_id": "member-dele",
+      "round_number": 1,
+      "amount": 10,
+      "status": "paid",
+      "paid_at": "2026-07-08T09:05:00Z",
+      "created_at": "2026-07-08T00:00:00Z"
+    },
+    {
+      "id": "contrib-r1-kofi",
+      "circle_id": "circle-abu-cs-001",
+      "member_id": "member-kofi",
+      "round_number": 1,
+      "amount": 10,
+      "status": "paid",
+      "paid_at": "2026-07-08T09:10:00Z",
+      "created_at": "2026-07-08T00:00:00Z"
+    },
+    {
+      "id": "contrib-r1-tunde",
+      "circle_id": "circle-abu-cs-001",
+      "member_id": "member-tunde",
+      "round_number": 1,
+      "amount": 10,
+      "status": "paid",
+      "paid_at": "2026-07-08T09:15:00Z",
+      "created_at": "2026-07-08T00:00:00Z"
+    },
+    {
+      "id": "contrib-r1-ngozi",
+      "circle_id": "circle-abu-cs-001",
+      "member_id": "member-ngozi",
+      "round_number": 1,
+      "amount": 10,
+      "status": "paid",
+      "paid_at": "2026-07-08T09:20:00Z",
+      "created_at": "2026-07-08T00:00:00Z"
+    },
+    {
+      "id": "contrib-r2-ada",
+      "circle_id": "circle-abu-cs-001",
+      "member_id": "member-ada",
+      "round_number": 2,
+      "amount": 10,
+      "status": "paid",
+      "paid_at": "2026-07-15T09:00:00Z",
+      "created_at": "2026-07-15T00:00:00Z"
+    },
+    {
+      "id": "contrib-r2-dele",
+      "circle_id": "circle-abu-cs-001",
+      "member_id": "member-dele",
+      "round_number": 2,
+      "amount": 10,
+      "status": "paid",
+      "paid_at": "2026-07-15T10:00:00Z",
+      "created_at": "2026-07-15T00:00:00Z"
+    },
+    {
+      "id": "contrib-r2-kofi",
+      "circle_id": "circle-abu-cs-001",
+      "member_id": "member-kofi",
+      "round_number": 2,
+      "amount": 10,
+      "status": "paid",
+      "paid_at": "2026-08-04T16:32:09Z",
+      "created_at": "2026-07-15T00:00:00Z"
+    },
+    {
+      "id": "contrib-r2-tunde",
+      "circle_id": "circle-abu-cs-001",
+      "member_id": "member-tunde",
+      "round_number": 2,
+      "amount": 10,
+      "status": "paid",
+      "paid_at": "2026-07-15T08:00:00Z",
+      "created_at": "2026-07-15T00:00:00Z"
+    },
+    {
+      "id": "contrib-r2-ngozi",
+      "circle_id": "circle-abu-cs-001",
+      "member_id": "member-ngozi",
+      "round_number": 2,
+      "amount": 10,
+      "status": "paid",
+      "paid_at": "2026-07-15T11:00:00Z",
+      "created_at": "2026-07-15T00:00:00Z"
+    },
+    {
+      "id": "contrib-r3-ada",
+      "circle_id": "circle-abu-cs-001",
+      "member_id": "member-ada",
+      "round_number": 3,
+      "amount": 10,
+      "status": "paid",
+      "paid_at": "2026-07-22T09:00:00Z",
+      "created_at": "2026-07-22T00:00:00Z"
+    },
+    {
+      "id": "contrib-r3-dele",
+      "circle_id": "circle-abu-cs-001",
+      "member_id": "member-dele",
+      "round_number": 3,
+      "amount": 10,
+      "status": "paid",
+      "paid_at": "2026-07-22T10:00:00Z",
+      "created_at": "2026-07-22T00:00:00Z"
+    },
+    {
+      "id": "contrib-r3-kofi",
+      "circle_id": "circle-abu-cs-001",
+      "member_id": "member-kofi",
+      "round_number": 3,
+      "amount": 10,
+      "status": "paid",
+      "paid_at": "2026-08-04T21:04:22.373Z",
+      "created_at": "2026-07-22T00:00:00Z"
+    },
+    {
+      "id": "contrib-r3-tunde",
+      "circle_id": "circle-abu-cs-001",
+      "member_id": "member-tunde",
+      "round_number": 3,
+      "amount": 10,
+      "status": "paid",
+      "paid_at": "2026-07-22T08:00:00Z",
+      "created_at": "2026-07-22T00:00:00Z"
+    },
+    {
+      "id": "contrib-r3-ngozi",
+      "circle_id": "circle-abu-cs-001",
+      "member_id": "member-ngozi",
+      "round_number": 3,
+      "amount": 10,
+      "status": "paid",
+      "paid_at": "2026-07-22T11:00:00Z",
+      "created_at": "2026-07-22T00:00:00Z"
+    },
+    {
+      "id": "344002b0-f465-42a0-acc9-3cc1e88c7ca7",
+      "circle_id": "circle-abu-cs-001",
+      "member_id": "member-ada",
+      "round_number": 4,
+      "amount": 10,
+      "status": "pending",
+      "paid_at": null,
+      "created_at": "2026-08-04T21:04:27.855Z"
+    },
+    {
+      "id": "5e08add8-60d4-40a9-9791-8f62ae295709",
+      "circle_id": "circle-abu-cs-001",
+      "member_id": "member-dele",
+      "round_number": 4,
+      "amount": 10,
+      "status": "pending",
+      "paid_at": null,
+      "created_at": "2026-08-04T21:04:27.855Z"
+    },
+    {
+      "id": "789a4459-63ed-4708-8fb7-057a0ae4bbbf",
+      "circle_id": "circle-abu-cs-001",
+      "member_id": "member-kofi",
+      "round_number": 4,
+      "amount": 10,
+      "status": "pending",
+      "paid_at": null,
+      "created_at": "2026-08-04T21:04:27.855Z"
+    },
+    {
+      "id": "0269cba4-f7da-4e4c-bc74-c23f89438de0",
+      "circle_id": "circle-abu-cs-001",
+      "member_id": "member-tunde",
+      "round_number": 4,
+      "amount": 10,
+      "status": "pending",
+      "paid_at": null,
+      "created_at": "2026-08-04T21:04:27.855Z"
+    },
+    {
+      "id": "a7282b6c-76d2-4516-bf0c-eaa28de95ad9",
+      "circle_id": "circle-abu-cs-001",
+      "member_id": "member-ngozi",
+      "round_number": 4,
+      "amount": 10,
+      "status": "pending",
+      "paid_at": null,
+      "created_at": "2026-08-04T21:04:27.855Z"
+    },
+    {
+      "id": "9b0bdc06-cf09-4ec8-8bcc-099c015eff4c",
+      "circle_id": "2f283ba7-ede2-4b87-8056-e29422f240c8",
+      "member_id": "c7ba063f-eab6-4216-b28b-aafde57464de",
+      "round_number": 1,
+      "amount": 5,
+      "status": "pending",
+      "paid_at": null,
+      "created_at": "2026-08-05T21:18:53.017Z"
+    }
+  ],
+  "payouts": [
+    {
+      "id": "payout-r1",
+      "circle_id": "circle-abu-cs-001",
+      "recipient_member_id": "member-ada",
+      "round_number": 1,
+      "total_amount": 50,
+      "status": "released",
+      "released_at": "2026-07-08T12:00:00Z"
+    },
+    {
+      "id": "payout-r2",
+      "circle_id": "circle-abu-cs-001",
+      "recipient_member_id": "member-dele",
+      "round_number": 2,
+      "total_amount": 50,
+      "status": "released",
+      "released_at": "2026-08-04T16:32:14Z"
+    },
+    {
+      "id": "payout-r3",
+      "circle_id": "circle-abu-cs-001",
+      "recipient_member_id": "member-kofi",
+      "round_number": 3,
+      "total_amount": 50,
+      "status": "released",
+      "released_at": "2026-08-04T21:04:27.717Z"
+    },
+    {
+      "id": "54c9eb43-267c-47f7-b2a6-98b8b453ce76",
+      "circle_id": "circle-abu-cs-001",
+      "recipient_member_id": "member-tunde",
+      "round_number": 4,
+      "total_amount": 50,
+      "status": "pending",
+      "released_at": null
+    }
+  ],
+  "collateral_events": [
+    {
+      "id": "cevt-001",
+      "circle_id": "circle-abu-cs-001",
+      "member_id": "member-ada",
+      "event_type": "locked",
+      "amount": 10,
+      "round_number": null,
+      "reason": "Joined circle — collateral locked",
+      "created_at": "2026-07-01T10:00:00Z"
+    },
+    {
+      "id": "cevt-002",
+      "circle_id": "circle-abu-cs-001",
+      "member_id": "member-dele",
+      "event_type": "locked",
+      "amount": 10,
+      "round_number": null,
+      "reason": "Joined circle — collateral locked",
+      "created_at": "2026-07-01T10:05:00Z"
+    },
+    {
+      "id": "cevt-003",
+      "circle_id": "circle-abu-cs-001",
+      "member_id": "member-kofi",
+      "event_type": "locked",
+      "amount": 10,
+      "round_number": null,
+      "reason": "Joined circle — collateral locked",
+      "created_at": "2026-07-01T10:10:00Z"
+    },
+    {
+      "id": "cevt-004",
+      "circle_id": "circle-abu-cs-001",
+      "member_id": "member-tunde",
+      "event_type": "locked",
+      "amount": 10,
+      "round_number": null,
+      "reason": "Joined circle — collateral locked",
+      "created_at": "2026-07-01T10:15:00Z"
+    },
+    {
+      "id": "cevt-005",
+      "circle_id": "circle-abu-cs-001",
+      "member_id": "member-ngozi",
+      "event_type": "locked",
+      "amount": 10,
+      "round_number": null,
+      "reason": "Joined circle — collateral locked",
+      "created_at": "2026-07-01T10:20:00Z"
+    },
+    {
+      "id": "cevt-006",
+      "circle_id": "circle-abu-cs-001",
+      "member_id": "member-dele",
+      "event_type": "slashed",
+      "amount": 3,
+      "round_number": 1,
+      "reason": "Missed Round 1 contribution — auto-slashed to pot",
+      "created_at": "2026-07-09T08:00:00Z"
+    },
+    {
+      "id": "ffa41e33-9b01-45ca-ae3c-0b520a37336e",
+      "circle_id": "2f283ba7-ede2-4b87-8056-e29422f240c8",
+      "member_id": "1c0c0a08-a96f-4d22-9529-feff7e26357d",
+      "event_type": "locked",
+      "amount": 5,
+      "round_number": null,
+      "reason": "Joined circle — collateral locked",
+      "created_at": "2026-08-04T21:08:02.106Z"
+    },
+    {
+      "id": "c761cb04-4c59-4928-ab10-3dd43e473d21",
+      "circle_id": "2f283ba7-ede2-4b87-8056-e29422f240c8",
+      "member_id": "c7ba063f-eab6-4216-b28b-aafde57464de",
+      "event_type": "locked",
+      "amount": 5,
+      "round_number": null,
+      "reason": "Joined circle — collateral locked",
+      "created_at": "2026-08-05T21:18:53.017Z"
+    }
+  ],
+  "reputation": [
+    {
+      "id": "rep-ada",
+      "user_id": "user-ada-001",
+      "circles_completed": 1,
+      "circles_defaulted": 0,
+      "total_contributed": 50,
+      "reputation_score": 100,
+      "tier": "Trusted",
+      "updated_at": "2026-07-08T12:00:00Z"
+    },
+    {
+      "id": "rep-dele",
+      "user_id": "user-dele-002",
+      "circles_completed": 1,
+      "circles_defaulted": 0,
+      "total_contributed": 37,
+      "reputation_score": 85,
+      "tier": "Trusted",
+      "updated_at": "2026-07-22T10:00:00Z"
+    },
+    {
+      "id": "rep-kofi",
+      "user_id": "freelancer-123",
+      "circles_completed": 1,
+      "circles_defaulted": 0,
+      "total_contributed": 20,
+      "reputation_score": 85,
+      "tier": "Trusted",
+      "updated_at": "2026-07-22T08:00:00Z"
+    },
+    {
+      "id": "rep-tunde",
+      "user_id": "user-tunde-004",
+      "circles_completed": 5,
+      "circles_defaulted": 0,
+      "total_contributed": 275,
+      "reputation_score": 98,
+      "tier": "Gold Circle",
+      "updated_at": "2026-07-22T08:00:00Z"
+    },
+    {
+      "id": "rep-ngozi",
+      "user_id": "user-ngozi-005",
+      "circles_completed": 0,
+      "circles_defaulted": 0,
+      "total_contributed": 20,
+      "reputation_score": 100,
+      "tier": "New Member",
+      "updated_at": "2026-07-22T11:00:00Z"
+    }
+  ]
+}

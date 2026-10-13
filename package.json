@@ -1,9 +1,11 @@
 {
   "dependencies": {
+    "canvas-confetti": "^1.9.3",
     "clsx": "^2.1.1",
     "lucide": "^1.27.0",
     "lucide-react": "^1.27.0",
     "next": "14.2.15",
+    "qrcode": "^1.5.4",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "tailwind-merge": "^3.6.0"
@@ -15,7 +17,9 @@
     "lint": "next lint"
   },
   "devDependencies": {
+    "@types/canvas-confetti": "^1.6.4",
     "@types/node": "^20.14.9",
+    "@types/qrcode": "^1.5.6",
     "@types/react": "^18.3.3",
     "@types/react-dom": "^18.3.0",
     "autoprefixer": "^10.4.16",

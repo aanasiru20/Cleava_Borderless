@@ -1,0 +1,16 @@
+[
+  {
+    "freelancer_id": "freelancer-123",
+    "client_name": null,
+    "client_email": null,
+    "amount_usdt": 50,
+    "job_description": "Web Development Services",
+    "id": "97167569-34b5-4293-b7ef-3473aeeb2164",
+    "status": "funded",
+    "escrow_code": "ESC-H1JY5L",
+    "funded_at": "2026-08-04T16:01:57.179Z",
+    "delivered_at": null,
+    "released_at": null,
+    "created_at": "2026-08-04T16:01:57.183Z"
+  }
+]
