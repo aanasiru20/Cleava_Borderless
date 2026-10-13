@@ -15,6 +15,8 @@ export interface DiasporaTransfer {
   status: "completed" | "pending";
   created_at: string;
   seen_by_student: boolean;
+  paypal_order_id?: string;
+  paypal_capture_id?: string;
 }
 
 export interface DiasporaDb {

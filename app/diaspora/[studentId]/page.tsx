@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from "react";
 import { useParams } from "next/navigation";
 import confetti from "canvas-confetti";
+import { PayPalButtons } from "@paypal/react-paypal-js";
 import {
   ShieldCheck, Zap, Globe, Copy, CheckCircle2,
   AlertTriangle, Loader2, CreditCard, Smartphone,
@@ -49,7 +50,7 @@ export default function DiasporaLandingPage() {
   const [senderCountry, setSenderCountry] = useState("United Kingdom");
   const [amount, setAmount] = useState<number>(100);
   const [customAmount, setCustomAmount] = useState<string>("");
-  const [paymentMethod, setPaymentMethod] = useState<"card" | "apple_pay" | "usdt">("card");
+  const [paymentMethod, setPaymentMethod] = useState<"paypal" | "card" | "apple_pay" | "usdt">("paypal");
   const [message, setMessage] = useState("");
   
   const [receipt, setReceipt] = useState<Receipt | null>(null);
@@ -415,8 +416,29 @@ export default function DiasporaLandingPage() {
         {/* PAYMENT METHOD SELECTOR */}
         <section className="space-y-4">
           <h3 className="text-base font-bold text-white">Payment Method</h3>
-          <div className="space-y-3">
-            
+              <div className="space-y-3">
+
+            {/* PayPal Option */}
+            <div
+              role="button"
+              tabIndex={0}
+              onClick={() => setPaymentMethod("paypal")}
+              onKeyDown={(event) => { if (event.key === "Enter" || event.key === " ") setPaymentMethod("paypal"); }}
+              className={`cursor-pointer rounded-xl p-4 border transition-all flex items-start gap-3 ${paymentMethod === "paypal" ? "bg-green-500/10 border-green-500 border-l-4" : "bg-[#1e293b] border-slate-700 hover:border-slate-600"}`}
+            >
+              <div className={`mt-0.5 h-4 w-4 rounded-full border-2 flex items-center justify-center shrink-0 ${paymentMethod === "paypal" ? "border-green-500" : "border-slate-500"}`}>
+                {paymentMethod === "paypal" && <div className="h-2 w-2 rounded-full bg-green-500" />}
+              </div>
+              <div className="flex-1">
+                <div className="flex items-center justify-between gap-2 mb-1">
+                  <span className="font-bold text-white text-sm">PayPal</span>
+                  <span className="text-[10px] font-bold uppercase tracking-wide text-amber-300 bg-amber-500/10 border border-amber-500/20 rounded-full px-2 py-1">Recommended</span>
+                </div>
+                <p className="text-xs text-slate-400">Pay with your PayPal balance or card</p>
+                <p className="text-[10px] text-slate-500 mt-1">Secure checkout for families worldwide</p>
+              </div>
+            </div>
+
             {/* Card Option */}
             <div 
               onClick={() => setPaymentMethod("card")}
@@ -524,20 +546,42 @@ export default function DiasporaLandingPage() {
       {/* ── STICKY BOTTOM BAR ── */}
       <div className="fixed bottom-0 left-0 right-0 bg-[#0B1120] border-t border-slate-800 p-4 z-50">
         <div className="max-w-2xl mx-auto">
-          {step === "loading" ? (
+          {paymentMethod === "paypal" && step !== "success" ? (
+            <div className="rounded-2xl bg-white p-3">
+              <PayPalButtons
+                style={{ layout: "vertical", color: "gold", shape: "rect", label: "pay", height: 48 }}
+                disabled={!isFormComplete || step === "loading"}
+                createOrder={async () => {
+                  const response = await fetch("/api/paypal/create-order", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ amount, studentName: student?.name, studentId }) });
+                  const data = await response.json();
+                  if (!response.ok || !data.id) throw new Error(data.error || "Unable to create order");
+                  return data.id;
+                }}
+                onApprove={async (data) => {
+                  setStep("loading");
+                  try {
+                    const response = await fetch("/api/paypal/capture-order", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ orderID: data.orderID, studentId, studentName: student?.name, amount, senderName, senderEmail, senderCountry, message }) });
+                    const result = await response.json();
+                    if (!response.ok || !result.success) throw new Error(result.error || "Payment failed");
+                    setReceipt({ transaction_ref: result.reference, amount_usdt: result.amount, recipient: result.studentName, message, created_at: new Date().toISOString() });
+                    setStep("success");
+                  } catch (error) {
+                    console.error("PayPal approval error", error);
+                    alert("Payment failed. Please try again.");
+                    setStep("form");
+                  }
+                }}
+                onCancel={() => alert("Payment cancelled.")}
+                onError={(error) => { console.error("PayPal error", error); alert("PayPal encountered an error. Please try again."); }}
+              />
+              <p className="text-center text-xs text-slate-500 mt-2">Secured by PayPal · Funds convert to USDT on receipt</p>
+            </div>
+          ) : step === "loading" ? (
             <button disabled className="w-full flex items-center justify-center gap-2 bg-[#16a34a]/80 text-white font-bold py-4 rounded-2xl shadow-lg cursor-not-allowed">
               <Loader2 className="h-5 w-5 animate-spin" /> Processing your transfer...
             </button>
           ) : (
-            <button 
-              onClick={handleSend}
-              disabled={!isFormComplete}
-              className={`w-full flex items-center justify-center gap-2 font-bold py-4 rounded-2xl shadow-lg transition-all active:scale-[0.98] ${
-                isFormComplete 
-                  ? "bg-[#16a34a] text-white hover:brightness-110 shadow-green-500/20" 
-                  : "bg-slate-800 text-slate-500 cursor-not-allowed"
-              }`}
-            >
+            <button onClick={handleSend} disabled={!isFormComplete} className={`w-full flex items-center justify-center gap-2 font-bold py-4 rounded-2xl shadow-lg transition-all active:scale-[0.98] ${isFormComplete ? "bg-[#16a34a] text-white hover:brightness-110 shadow-green-500/20" : "bg-slate-800 text-slate-500 cursor-not-allowed"}`}>
               <Zap className="h-5 w-5" /> Send ${amount.toFixed(2)} USDT to {student?.name.split(" ")[0]} Instantly →
             </button>
           )}
