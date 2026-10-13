@@ -40,6 +40,7 @@ export async function POST(request: Request) {
       client_email: body.client_email || null,
       amount_usdt: Number(body.amount_usdt),
       job_description: body.job_description,
+      freelancer_paypal_email: body.freelancer_paypal_email || null,
     });
     
     return NextResponse.json(newEscrow, { status: 201 });

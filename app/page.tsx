@@ -103,6 +103,7 @@ export default function Home() {
   // Escrow States
   const [isEscrow, setIsEscrow] = useState<boolean>(false);
   const [clientEmail, setClientEmail] = useState<string>("");
+  const [freelancerPaypalEmail, setFreelancerPaypalEmail] = useState<string>("");
   const [generatedEscrowCode, setGeneratedEscrowCode] = useState<string>("");
   const [escrows, setEscrows] = useState<any[]>([]);
   
@@ -291,8 +292,9 @@ export default function Home() {
             freelancer_id: "freelancer-123", // mock ID
             client_email: clientEmail,
             amount_usdt: invoiceAmount,
-            job_description: invoiceDescription,
-          }),
+    job_description: invoiceDescription,
+    freelancer_paypal_email: freelancerPaypalEmail || null,
+  }),
         });
         const data = await res.json();
         if (data.escrow_code) {
@@ -1044,6 +1046,21 @@ export default function Home() {
                         placeholder="client@example.com"
                       />
                     </div>
+                  </div>
+                )}
+
+                {isEscrow && (
+                  <div className="space-y-1.5 animate-fadeIn">
+                    <label className={`text-[10px] font-bold uppercase tracking-wider block ${isDarkMode ? "text-slate-400" : "text-slate-500"}`}>
+                      Your PayPal email (optional — for PayPal payouts)
+                    </label>
+                    <input
+                      type="email"
+                      value={freelancerPaypalEmail}
+                      onChange={(e) => { setFreelancerPaypalEmail(e.target.value); setHasGenerated(false); }}
+                      className={`w-full border rounded-xl px-3.5 py-2.5 bg-transparent text-sm font-medium outline-none ${isDarkMode ? "border-slate-850 bg-slate-950 text-white" : "border-slate-200 bg-white text-slate-900"}`}
+                      placeholder="you@paypal.com"
+                    />
                   </div>
                 )}
 

@@ -33,7 +33,11 @@ export async function PATCH(
       return NextResponse.json({ error: "Invalid status" }, { status: 400 });
     }
     
-    const updatedEscrow = updateEscrowStatus(params.code, status);
+    const updatedEscrow = updateEscrowStatus(params.code, status, {
+      payout_method: body.payout_method,
+      paypal_batch_id: body.paypal_batch_id,
+      freelancer_paypal_email: body.freelancer_paypal_email,
+    });
     
     if (!updatedEscrow) {
       return NextResponse.json({ error: "Escrow not found" }, { status: 404 });
