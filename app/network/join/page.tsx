@@ -1,10 +1,10 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { Suspense, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { ChevronLeft, Store, Loader2, CheckCircle2 } from "lucide-react";
 
-export default function JoinNetworkPage() {
+function JoinNetworkPageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const codeParam = searchParams.get("code") || "";
@@ -121,5 +121,13 @@ export default function JoinNetworkPage() {
         </div>
       </div>
     </main>
+  );
+}
+
+export default function JoinNetworkPage() {
+  return (
+    <Suspense fallback={<main className="flex min-h-screen items-center justify-center bg-slate-900 p-4"><Loader2 className="h-10 w-10 animate-spin text-[#00D26A]" /></main>}>
+      <JoinNetworkPageContent />
+    </Suspense>
   );
 }

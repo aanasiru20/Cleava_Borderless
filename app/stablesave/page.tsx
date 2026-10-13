@@ -18,6 +18,7 @@ interface VaultState {
   accrued_yield: number;
   apy: number;
   is_active: boolean;
+  is_locked: boolean;
   last_accrued_at: string;
 }
 
@@ -79,7 +80,10 @@ export default function StableSavePage() {
       const res = await fetch("/api/yield/vault");
       if (res.ok) {
         const data = await res.json();
-        setVault(data);
+        setVault({
+          ...data,
+          is_locked: Boolean(data.is_locked),
+        });
         setLiveYield(data.accrued_yield);
       }
     } catch (e) {
