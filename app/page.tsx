@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import AISavingsCoach from "@/components/AISavingsCoach";
 import {
   Wallet,
   QrCode,
@@ -1328,7 +1329,8 @@ export default function Home() {
             </button>
           </nav>
         </div>
-      </div>
-    </main>
+  </div>
+  <AISavingsCoach userId="freelancer-123" />
+  </main>
   );
-}
+  }

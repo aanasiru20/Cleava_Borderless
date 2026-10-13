@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
+import AISavingsCoach from "@/components/AISavingsCoach";
 import {
   ChevronLeft, Loader2, Wallet, TrendingUp, History, Info, CheckCircle2,
   AlertTriangle, DollarSign, ArrowRightLeft, Clock, Plus, Minus,
@@ -478,7 +479,8 @@ export default function StableSavePage() {
           </div>
 
         </div>
-      </div>
-    </main>
+          </div>
+          <AISavingsCoach userId="freelancer-123" showCard />
+        </main>
   );
 }
