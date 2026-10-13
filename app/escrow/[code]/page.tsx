@@ -8,7 +8,8 @@ import {
   Unlock, 
   CheckCircle2, 
   Loader2,
-  ExternalLink
+  ExternalLink,
+  Mail
 } from "lucide-react";
 
 export default function EscrowClientPage() {
@@ -19,6 +20,10 @@ export default function EscrowClientPage() {
   const [loading, setLoading] = useState<boolean>(true);
   const [isReleasing, setIsReleasing] = useState<boolean>(false);
   const [releaseSuccess, setReleaseSuccess] = useState<boolean>(false);
+  const [payoutMethod, setPayoutMethod] = useState<"usdt_wallet" | "paypal">("usdt_wallet");
+  const [paypalEmail, setPaypalEmail] = useState<string>("");
+  const [showPayoutChoice, setShowPayoutChoice] = useState<boolean>(false);
+  const [releaseError, setReleaseError] = useState<string>("");
 
   // Fetch escrow details
   useEffect(() => {
@@ -44,19 +49,22 @@ export default function EscrowClientPage() {
 
   const handleRelease = async () => {
     setIsReleasing(true);
+    setReleaseError("");
     try {
-      const res = await fetch(`/api/escrow/${code}`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ status: "released" })
-      });
-      if (res.ok) {
-        setReleaseSuccess(true);
-        const updated = await res.json();
-        setEscrow(updated);
+      let paypalBatchId: string | null = null;
+      if (payoutMethod === "paypal") {
+        const payout = await fetch("/api/paypal/payout", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ recipientEmail: paypalEmail, amount: escrow.amount_usdt, escrowId: escrow.id }) });
+        const payoutData = await payout.json();
+        if (!payout.ok) throw new Error(payoutData.error ?? "PayPal payout failed");
+        paypalBatchId = payoutData.batchId;
       }
+      const res = await fetch(`/api/escrow/${code}`, { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ status: "released", payout_method: payoutMethod, paypal_batch_id: paypalBatchId, freelancer_paypal_email: payoutMethod === "paypal" ? paypalEmail : null }) });
+      if (!res.ok) throw new Error("Unable to release escrow");
+      setReleaseSuccess(true);
+      setEscrow(await res.json());
+      setShowPayoutChoice(false);
     } catch (err) {
-      console.error(err);
+      setReleaseError(err instanceof Error ? err.message : "Release failed");
     } finally {
       setIsReleasing(false);
     }
@@ -163,10 +171,24 @@ export default function EscrowClientPage() {
             </div>
           </div>
 
+          {releaseError && <div className="rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-300">{releaseError}</div>}
+
+          {showPayoutChoice && escrow.status === "delivered" && (
+            <div className="rounded-2xl border border-slate-700 bg-slate-800/80 p-4 space-y-4 animate-fadeIn">
+              <div className="flex items-center justify-between"><div><div className="font-bold text-white">Choose payout method</div><div className="text-xs text-slate-400">Release ${escrow.amount_usdt.toFixed(2)} to your freelancer.</div></div><button onClick={() => setShowPayoutChoice(false)} className="text-slate-400" aria-label="Close payout choices">×</button></div>
+              <div className="grid grid-cols-2 gap-2">
+                <button onClick={() => setPayoutMethod("usdt_wallet")} className={`rounded-xl border p-3 text-left ${payoutMethod === "usdt_wallet" ? "border-[#00D26A] bg-[#00D26A]/10" : "border-slate-700"}`}><div className="font-bold text-white text-sm">USDT Wallet</div><div className="text-[11px] text-slate-400">Existing escrow wallet</div></button>
+                <button onClick={() => setPayoutMethod("paypal")} className={`rounded-xl border p-3 text-left ${payoutMethod === "paypal" ? "border-[#00D26A] bg-[#00D26A]/10" : "border-slate-700"}`}><div className="font-bold text-white text-sm flex items-center gap-1"><Mail className="h-3.5 w-3.5" /> PayPal</div><div className="text-[11px] text-slate-400">Fast USD payout</div></button>
+              </div>
+              {payoutMethod === "paypal" && <input type="email" value={paypalEmail} onChange={(e) => setPaypalEmail(e.target.value)} placeholder="Freelancer PayPal email" className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-3 text-sm text-white outline-none" />}
+              <button onClick={handleRelease} disabled={isReleasing || (payoutMethod === "paypal" && !paypalEmail)} className="w-full rounded-xl bg-[#00D26A] py-3 font-bold text-slate-950 disabled:opacity-50">{isReleasing ? "Processing payout..." : "Confirm & release"}</button>
+            </div>
+          )}
+
           {/* Action Button */}
           {escrow.status === "delivered" ? (
             <button
-              onClick={handleRelease}
+              onClick={() => setShowPayoutChoice(true)}
               disabled={isReleasing}
               className="w-full flex items-center justify-center gap-2 rounded-2xl bg-[#00D26A] hover:bg-emerald-400 text-slate-950 font-bold py-4 px-6 transition-all shadow-lg shadow-[#00D26A]/20 active:scale-[0.98] disabled:opacity-50"
             >

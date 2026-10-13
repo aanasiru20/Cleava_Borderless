@@ -14,6 +14,9 @@ export interface EscrowTransaction {
   funded_at: string;
   delivered_at: string | null;
   released_at: string | null;
+  payout_method: "usdt_wallet" | "paypal";
+  paypal_batch_id: string | null;
+  freelancer_paypal_email: string | null;
   created_at: string;
 }
 
@@ -45,7 +48,7 @@ export const getEscrowByCode = (code: string): EscrowTransaction | undefined => 
 
 // Create a new escrow
 export const createEscrow = (
-  escrow: Omit<EscrowTransaction, "id" | "status" | "escrow_code" | "funded_at" | "delivered_at" | "released_at" | "created_at">
+  escrow: Omit<EscrowTransaction, "id" | "status" | "escrow_code" | "funded_at" | "delivered_at" | "released_at" | "payout_method" | "paypal_batch_id" | "created_at">
 ): EscrowTransaction => {
   const escrows = getEscrows();
   
@@ -60,6 +63,9 @@ export const createEscrow = (
     funded_at: new Date().toISOString(),
     delivered_at: null,
     released_at: null,
+    payout_method: "usdt_wallet",
+    paypal_batch_id: null,
+    freelancer_paypal_email: escrow.freelancer_paypal_email ?? null,
     created_at: new Date().toISOString(),
   };
 
@@ -72,7 +78,12 @@ export const createEscrow = (
 // Update escrow status
 export const updateEscrowStatus = (
   code: string,
-  newStatus: "delivered" | "released"
+  newStatus: "delivered" | "released",
+  payout?: {
+    payout_method?: "usdt_wallet" | "paypal";
+    paypal_batch_id?: string | null;
+    freelancer_paypal_email?: string | null;
+  }
 ): EscrowTransaction | null => {
   const escrows = getEscrows();
   const index = escrows.findIndex((e) => e.escrow_code === code);
@@ -80,6 +91,12 @@ export const updateEscrowStatus = (
   if (index === -1) return null;
   
   escrows[index].status = newStatus;
+
+  if (payout) {
+    escrows[index].payout_method = payout.payout_method ?? escrows[index].payout_method;
+    escrows[index].paypal_batch_id = payout.paypal_batch_id ?? escrows[index].paypal_batch_id;
+    escrows[index].freelancer_paypal_email = payout.freelancer_paypal_email ?? escrows[index].freelancer_paypal_email;
+  }
   
   if (newStatus === "delivered") {
     escrows[index].delivered_at = new Date().toISOString();
