@@ -82,10 +82,10 @@ export default function AISavingsCoach({ userId = "freelancer-123", showCard = f
         </section>
       )}
 
-      {!isOpen && !showCard && <button type="button" aria-label="Open Ada savings coach" onClick={() => setIsOpen(true)} className="fixed bottom-24 right-4 z-40 flex size-14 items-center justify-center rounded-full bg-emerald-500 text-slate-950 shadow-lg shadow-emerald-950/50 transition hover:bg-emerald-400 active:scale-95"><Bot className="size-6" /></button>}
+      {!isOpen && !showCard && <button type="button" aria-label="Open Ada savings coach" onClick={() => setIsOpen(true)} className="absolute bottom-24 right-4 z-40 flex size-14 items-center justify-center rounded-full bg-emerald-500 text-slate-950 shadow-lg shadow-emerald-950/50 transition hover:bg-emerald-400 active:scale-95"><Bot className="size-6" /></button>}
 
       {isOpen && (
-        <div className="fixed inset-0 z-50 flex flex-col bg-slate-950 text-white md:inset-auto md:bottom-4 md:right-4 md:h-[min(680px,calc(100vh-2rem))] md:w-[min(420px,calc(100vw-2rem))] md:overflow-hidden md:rounded-3xl md:border md:border-slate-800 md:shadow-2xl">
+        <div className="absolute inset-0 z-50 flex flex-col bg-slate-950 text-white md:inset-auto md:bottom-4 md:right-4 md:h-[min(680px,calc(100vh-2rem))] md:w-[calc(100%-2rem)] md:max-w-[358px] md:overflow-hidden md:rounded-3xl md:border md:border-slate-800 md:shadow-2xl">
           <header className="flex items-center gap-3 border-b border-white/10 bg-slate-900 px-4 py-3">
             <div className="rounded-full bg-emerald-500 p-2 text-slate-950"><Bot className="size-5" /></div>
             <div className="flex-1"><p className="text-sm font-semibold">Ada — AI Savings Coach</p><p className="text-xs text-emerald-400">Online · Knows your finances</p></div>

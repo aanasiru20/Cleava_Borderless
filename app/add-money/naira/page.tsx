@@ -736,7 +736,7 @@ export default function NairaConversionPage() {
       </div>
 
       {/* Sticky Bottom CTA */}
-      <div className="fixed bottom-0 left-0 right-0 bg-[#0B1120]/90 backdrop-blur border-t border-slate-800 p-4 z-50">
+      <div className="absolute bottom-0 left-0 right-0 z-50 border-t border-slate-800 bg-[#0B1120]/90 p-4 backdrop-blur">
         <div className="max-w-lg mx-auto">
           {step === "amount" && (
             <button
