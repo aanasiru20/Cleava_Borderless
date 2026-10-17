@@ -522,7 +522,7 @@ export default function DiasporaLandingPage() {
       </div>
       
       {/* ── STICKY BOTTOM BAR ── */}
-      <div className="fixed bottom-0 left-0 right-0 bg-[#0B1120] border-t border-slate-800 p-4 z-50">
+      <div className="absolute bottom-0 left-0 right-0 z-50 border-t border-slate-800 bg-[#0B1120] p-4">
         <div className="max-w-2xl mx-auto">
           {step === "loading" ? (
             <button disabled className="w-full flex items-center justify-center gap-2 bg-[#16a34a]/80 text-white font-bold py-4 rounded-2xl shadow-lg cursor-not-allowed">

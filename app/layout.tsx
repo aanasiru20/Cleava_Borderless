@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import MobileFrame from "@/components/MobileFrame";
 
 export const metadata: Metadata = {
   title: "Cleva Borderless",
@@ -13,8 +14,8 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className="antialiased bg-slate-900 min-h-screen">
-        {children}
+      <body className="min-h-screen bg-[#070d1a] antialiased">
+        <MobileFrame>{children}</MobileFrame>
       </body>
     </html>
   );

@@ -132,7 +132,7 @@ export default function VendorDashboard() {
           {/* Earnings Summary */}
           <div className="bg-slate-900 border border-slate-800 rounded-2xl p-5">
             <h3 className="text-xs font-bold uppercase tracking-widest text-slate-400 mb-4">Earnings Summary</h3>
-            <div className="grid grid-cols-3 gap-3 divide-x divide-slate-800">
+            <div className="grid grid-cols-2 gap-3 divide-x sm:grid-cols-3 divide-slate-800">
               <div>
                 <p className="text-[10px] text-slate-500 uppercase mb-1">Today</p>
                 <p className="text-sm font-bold text-[#00D26A]">${formatCurrency(vendor.today_earnings)}</p>

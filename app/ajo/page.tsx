@@ -156,7 +156,7 @@ export default function AjoHomePage() {
                   </div>
 
                   {/* Stats Row */}
-                  <div className="grid grid-cols-3 gap-2">
+                  <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
                     <div className="bg-slate-950/60 rounded-xl p-2.5 text-center">
                       <div className="text-base font-extrabold text-[#00D26A]">
                         ${circle.pot_size.toFixed(0)}
