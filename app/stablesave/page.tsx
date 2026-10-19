@@ -59,6 +59,7 @@ export default function StableSavePage() {
   const [vault, setVault] = useState<VaultState | null>(null);
   const [history, setHistory] = useState<Transaction[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   
   // Modals
   const [showDeposit, setShowDeposit] = useState(false);
@@ -79,16 +80,17 @@ export default function StableSavePage() {
   const fetchVault = useCallback(async () => {
     try {
       const res = await fetch("/api/yield/vault");
-      if (res.ok) {
-        const data = await res.json();
-        setVault({
-          ...data,
-          is_locked: Boolean(data.is_locked),
-        });
-        setLiveYield(data.accrued_yield);
-      }
+      if (!res.ok) throw new Error("API error");
+      const data = await res.json();
+      const nextVault = data.vault || null;
+      setVault(nextVault ? { ...nextVault, is_locked: Boolean(nextVault.is_locked) } : null);
+      setLiveYield(Number(nextVault?.accrued_yield || 0));
+      setError(null);
     } catch (e) {
       console.error(e);
+      setError("Could not load your vault. Tap to retry.");
+    } finally {
+      setLoading(false);
     }
   }, []);
 
@@ -199,12 +201,15 @@ export default function StableSavePage() {
 
   // ─── Render ─────────────────────────────────────────────────────────────────
 
-  if (!vault && loading) {
+  if (loading) {
     return (
       <main className="flex min-h-screen items-center justify-center bg-slate-900 p-4 font-sans antialiased">
         <Loader2 className="h-10 w-10 animate-spin text-[#22c55e]" />
       </main>
     );
+  }
+  if (error) {
+    return <main className="flex min-h-screen flex-col items-center justify-center gap-3 bg-slate-900 px-6 text-center text-white"><p className="text-lg font-bold">Something went wrong</p><p className="text-sm text-slate-400">{error}</p><button onClick={() => { setLoading(true); fetchVault(); }} className="rounded-xl bg-[#22c55e] px-6 py-2 text-sm font-bold text-slate-950">Retry</button></main>;
   }
 
   const totalValue = (vault?.principal || 0) + liveYield;
