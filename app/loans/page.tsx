@@ -10,6 +10,7 @@ export default function MicroLoansPage() {
   
   const [data, setData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   
   // Borrow State
   const [borrowAmount, setBorrowAmount] = useState(1);
@@ -19,11 +20,12 @@ export default function MicroLoansPage() {
   const fetchData = useCallback(async () => {
     try {
       const res = await fetch("/api/loans");
-      if (res.ok) {
-        setData(await res.json());
-      }
+      if (!res.ok) throw new Error("API error");
+      setData(await res.json());
+      setError(null);
     } catch (e) {
       console.error(e);
+      setError("Could not load loans. Tap to retry.");
     } finally {
       setLoading(false);
     }
@@ -95,8 +97,11 @@ export default function MicroLoansPage() {
   };
 
   if (loading) return <div className="flex min-h-screen items-center justify-center bg-slate-900"><Loader2 className="h-10 w-10 text-[#00D26A] animate-spin" /></div>;
+  if (error) return <div className="flex min-h-screen flex-col items-center justify-center gap-3 bg-slate-900 px-6 text-center text-white"><p className="text-lg font-bold">Something went wrong</p><p className="text-sm text-slate-400">{error}</p><button onClick={() => { setLoading(true); fetchData(); }} className="rounded-xl bg-[#00D26A] px-6 py-2 text-sm font-bold text-slate-950">Retry</button></div>;
 
-  const { activeLoan, history, standing } = data;
+  const { activeLoan = null, loanHistory = [], vault = null, creditScore = { score: 100, tier: "New Member", loansRepaid: 0 } } = data || {};
+  const history = loanHistory;
+  const standing = { emoji: "🌱", badge: creditScore.tier, repaid_count: creditScore.loansRepaid, borrowing_power_pct: 0.4 };
 
   return (
     <main className="flex min-h-screen items-center justify-center bg-slate-900 p-4 font-sans antialiased">
