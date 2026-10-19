@@ -1234,23 +1234,30 @@ export default function Home() {
 
                 {/* Stable Coin Balance */}
                 <div
-                  className={`relative overflow-hidden rounded-2xl p-5 border shadow-md transition-all hover:scale-[1.01] ${
+                  className={`relative overflow-hidden rounded-2xl border p-5 shadow-md transition-all hover:scale-[1.01] ${
                     isDarkMode
-                      ? "bg-gradient-to-br from-[#00D26A]/10 to-[#009393]/10 border-[#00D26A]/30 text-white"
-                      : "bg-gradient-to-br from-[#00D26A]/5 to-[#009393]/5 border-[#00D26A]/20 text-slate-900"
+                      ? "border-[#00D26A]/30 bg-gradient-to-br from-[#00D26A]/10 via-slate-900/70 to-[#009393]/10 text-white"
+                      : "border-[#00D26A]/20 bg-gradient-to-br from-[#00D26A]/5 via-white to-[#009393]/5 text-slate-900"
                   }`}
                 >
-                  <div className="flex items-center justify-between mb-2">
-                    <span className={`text-sm font-semibold flex items-center gap-2 ${isDarkMode ? "text-slate-200" : "text-slate-700"}`}>
-                      <span className="flex h-6 w-6 items-center justify-center rounded-full bg-[#00D26A]/20 text-[#00D26A]">₮</span>
-                      Tether (USDT)
-                    </span>
-                    <span className="text-[9px] font-bold text-[#00D26A] bg-[#00D26A]/10 border border-[#00D26A]/20 px-2 py-0.5 rounded-full uppercase tracking-wider">
+                  <div className="pointer-events-none absolute -right-5 -top-5 size-20 rounded-full bg-[#00D26A]/10 blur-xl" />
+                  <div className="relative flex flex-wrap items-start justify-between gap-3">
+                    <div className="flex min-w-0 items-center gap-2">
+                      <span className="flex size-7 shrink-0 items-center justify-center rounded-full bg-[#00D26A]/20 text-sm font-bold text-[#00D26A]">₮</span>
+                      <div className="min-w-0">
+                        <p className={`truncate text-sm font-semibold ${isDarkMode ? "text-slate-200" : "text-slate-700"}`}>
+                          Tether (USDT)
+                        </p>
+                        <p className="text-[10px] text-slate-500">Stable Coin balance</p>
+                      </div>
+                    </div>
+                    <span className="shrink-0 rounded-full border border-[#00D26A]/20 bg-[#00D26A]/10 px-2 py-1 text-[9px] font-bold uppercase tracking-wider text-[#00D26A]">
                       Stable Coin
                     </span>
                   </div>
-                  <div className={`text-2xl font-extrabold tracking-tight ${isDarkMode ? "text-white" : "text-slate-900"}`}>
-                    {usdtBalance.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} <span className="text-sm font-semibold text-[#009393]">USDT</span>
+                  <div className={`relative mt-4 text-2xl font-extrabold tracking-tight ${isDarkMode ? "text-white" : "text-slate-900"}`}>
+                    {usdtBalance.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                    <span className="ml-1 text-sm font-semibold text-[#009393]">USDT</span>
                   </div>
                 </div>
               </div>
