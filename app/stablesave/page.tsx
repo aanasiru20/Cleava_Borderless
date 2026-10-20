@@ -65,7 +65,9 @@ export default function StableSavePage() {
   const [showDeposit, setShowDeposit] = useState(false);
   const [showWithdraw, setShowWithdraw] = useState(false);
   const [depositAmount, setDepositAmount] = useState("");
+  const [walletBalance, setWalletBalance] = useState(0);
   const [actionLoading, setActionLoading] = useState(false);
+  const [toast, setToast] = useState<string | null>(null);
   
   // Projection State
   const [projAmount, setProjAmount] = useState("100");
@@ -84,6 +86,7 @@ export default function StableSavePage() {
       const data = await res.json();
       const nextVault = data.vault || null;
       setVault(nextVault ? { ...nextVault, is_locked: Boolean(nextVault.is_locked) } : null);
+      setWalletBalance(Number(data.walletBalance || 0));
       setLiveYield(Number(nextVault?.accrued_yield || 0));
       setError(null);
     } catch (e) {
@@ -151,26 +154,36 @@ export default function StableSavePage() {
   // ─── Actions ────────────────────────────────────────────────────────────────
 
   const handleDeposit = async () => {
-    const amt = parseFloat(depositAmount);
-    if (isNaN(amt) || amt <= 0) return;
-    
+    const amount = parseFloat(depositAmount);
+    if (!Number.isFinite(amount) || amount <= 0) return;
+    if (amount > walletBalance) {
+      setToast("Insufficient wallet balance");
+      return;
+    }
+
     setActionLoading(true);
     try {
       const res = await fetch("/api/yield/vault", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ action: "deposit", amount: amt })
+        body: JSON.stringify({ action: "deposit", amount })
       });
-      if (res.ok) {
-        await fetchVault();
-        await fetchHistory();
-        setShowDeposit(false);
-        setDepositAmount("");
-      }
+      const data = await res.json();
+      if (!res.ok || data.error) throw new Error(data.error || "Deposit failed");
+
+      setVault({ ...data.vault, is_locked: Boolean(data.vault.is_locked) });
+      setLiveYield(Number(data.vault.accrued_yield || 0));
+      setWalletBalance(Number(data.newWalletBalance ?? walletBalance - amount));
+      setDepositAmount("");
+      setShowDeposit(false);
+      setToast(`$${amount.toFixed(2)} USDT deposited to vault`);
+      await fetchHistory();
     } catch (e) {
-      console.error(e);
+      console.error("Deposit error:", e);
+      setToast("Deposit failed. Try again.");
+    } finally {
+      setActionLoading(false);
     }
-    setActionLoading(false);
   };
 
   const handleWithdraw = async () => {
@@ -218,14 +231,18 @@ export default function StableSavePage() {
     <main className="flex min-h-screen w-full flex-col overflow-y-auto bg-[#0f172a] pb-24 font-sans text-white antialiased scrollbar-hide">
       {/* Modals remain layered above the page, never in the document flow. */}
       {showDeposit && (
-        <div className="fixed inset-0 z-50 flex flex-col justify-end bg-slate-950/90 backdrop-blur-sm">
-          <div className="w-full rounded-t-3xl border-t border-slate-800 bg-slate-900 p-6">
-            <div className="flex items-center justify-between"><h3 className="text-xl font-extrabold">Deposit to Vault</h3><button onClick={() => setShowDeposit(false)} className="p-2 text-slate-400" aria-label="Close deposit dialog">✕</button></div>
-            <div className="mt-6 space-y-2"><label className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Amount to lock</label><div className="relative"><span className="absolute left-4 top-1/2 -translate-y-1/2 font-bold text-slate-400">$</span><input type="number" value={depositAmount} onChange={(e) => setDepositAmount(e.target.value)} placeholder="50.00" className="w-full rounded-xl border border-slate-800 bg-slate-950 py-4 pl-8 pr-16 text-xl font-bold outline-none focus:border-[#22c55e]/50" /><span className="absolute right-4 top-1/2 -translate-y-1/2 text-xs font-bold text-slate-500">USDT</span></div></div>
-            {parseFloat(depositAmount) > 0 && <div className="mt-4 rounded-xl border border-[#22c55e]/20 bg-[#22c55e]/10 p-4 text-xs font-semibold text-[#22c55e]"><Zap className="mr-2 inline h-4 w-4" />At 8% APY, this earns ~${(parseFloat(depositAmount) * 0.08).toFixed(2)} in a year.</div>}
-            <button onClick={handleDeposit} disabled={actionLoading || parseFloat(depositAmount) <= 0} className="mt-6 flex w-full items-center justify-center gap-2 rounded-2xl bg-[#22c55e] py-4 font-bold text-slate-950 disabled:opacity-50">{actionLoading ? <Loader2 className="h-5 w-5 animate-spin" /> : "Deposit to Vault"}</button>
+        <>
+          <div onClick={() => setShowDeposit(false)} className="fixed inset-0 z-40 bg-black/60" />
+          <div className="fixed bottom-0 left-1/2 z-50 w-full max-w-[390px] -translate-x-1/2 rounded-t-3xl border-t border-white/10 bg-[#1e293b] px-4 pb-10 pt-5 animate-slide-up">
+            <div className="mx-auto mb-4 h-1 w-10 rounded-full bg-white/20" />
+            <div className="mb-6 flex items-center justify-between"><h2 className="text-lg font-bold">Deposit to Vault</h2><button onClick={() => setShowDeposit(false)} className="flex h-8 w-8 items-center justify-center rounded-full bg-white/10 text-gray-400 hover:text-white" aria-label="Close deposit dialog">✕</button></div>
+            <div className="mb-4 rounded-xl bg-[#0f172a] p-3"><p className="text-xs text-gray-400">Available in wallet</p><p className="text-lg font-bold">${walletBalance.toFixed(2)} USDT</p></div>
+            <div className="mb-4"><label htmlFor="deposit-amount" className="mb-2 block text-xs text-gray-400">Amount to deposit (USDT)</label><div className="relative"><span className="absolute left-4 top-1/2 -translate-y-1/2 font-semibold text-gray-400">$</span><input id="deposit-amount" type="number" inputMode="decimal" value={depositAmount} onChange={(e) => setDepositAmount(e.target.value)} placeholder="0.00" className="h-14 w-full rounded-xl border border-white/10 bg-[#0f172a] pl-8 pr-4 text-xl font-bold text-white placeholder:text-gray-600 focus:border-green-500/50 focus:outline-none" /></div></div>
+            <div className="mb-4 grid grid-cols-4 gap-2">{["10", "25", "50", "100"].map((amt) => <button key={amt} onClick={() => setDepositAmount(amt)} className={`h-9 rounded-lg text-sm font-medium transition-all ${depositAmount === amt ? "bg-green-600 text-white" : "border border-white/10 bg-[#0f172a] text-gray-300"}`}>${amt}</button>)}</div>
+            {parseFloat(depositAmount) > 0 && <div className="mb-4 rounded-xl border border-green-500/20 bg-green-900/20 p-3"><p className="mb-1 text-xs text-green-400">At 8% APY you could earn:</p><div className="flex justify-between text-xs"><span className="text-gray-400">Monthly</span><span className="font-semibold text-green-400">+${(parseFloat(depositAmount) * 0.08 / 12).toFixed(4)} USDT</span></div><div className="mt-1 flex justify-between text-xs"><span className="text-gray-400">Yearly</span><span className="font-semibold text-green-400">+${(parseFloat(depositAmount) * 0.08).toFixed(2)} USDT</span></div></div>}
+            <button onClick={handleDeposit} disabled={actionLoading || !depositAmount || parseFloat(depositAmount) <= 0 || parseFloat(depositAmount) > walletBalance} className="flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-green-600 font-bold text-white transition-all active:scale-95 disabled:cursor-not-allowed disabled:opacity-40">{actionLoading ? <><Loader2 className="h-4 w-4 animate-spin" />Depositing...</> : `Deposit $${depositAmount || "0"} USDT`}</button>
           </div>
-        </div>
+        </>
       )}
       {showWithdraw && (
         <div className="fixed inset-0 z-50 flex flex-col justify-end bg-slate-950/90 backdrop-blur-sm">
@@ -248,6 +265,7 @@ export default function StableSavePage() {
       <section className="w-full px-4 pb-6 pt-4"><div className="mb-3 flex items-center justify-between"><h3 className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-widest text-slate-400"><History className="h-4 w-4" />Yield History</h3><span className="text-[9px] text-green-400">● Live feed</span></div><div className="flex w-full flex-col gap-2 rounded-2xl border border-slate-800 bg-slate-900 p-3">{history.length === 0 ? <p className="py-6 text-center text-xs text-slate-500">No history yet.</p> : history.map(tx => <div key={tx.id} className="flex items-center justify-between border-b border-white/5 py-2"><div className="flex min-w-0 items-center gap-2"><span className="text-green-400">🟢</span><span className="truncate text-sm text-gray-300">{tx.type === "yield_credit" ? "Yield credit" : tx.type === "deposit" ? "Deposit" : "Withdrawal"}</span></div><span className="whitespace-nowrap font-mono text-sm text-green-400">{tx.type === "withdraw" ? "-" : "+"}${formatNumber(tx.amount, 6)}</span></div>)}</div></section>
 
       <div className="flex justify-center pb-6 opacity-50"><div className="flex items-center gap-1.5 text-[9px] uppercase tracking-widest text-slate-500"><ShieldCheck className="h-3 w-3" />Powered by USDT on Tron</div></div>
+      {toast && <button onClick={() => setToast(null)} className="fixed bottom-5 left-1/2 z-[60] -translate-x-1/2 rounded-xl bg-green-500 px-4 py-3 text-sm font-bold text-slate-950 shadow-lg" role="status">{toast}</button>}
     </main>
   );
 }
