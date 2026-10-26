@@ -156,7 +156,8 @@ export default function StableSavePage() {
   const handleDeposit = async () => {
     const amount = parseFloat(depositAmount);
     if (!Number.isFinite(amount) || amount <= 0) return;
-    if (amount > walletBalance) {
+    const safeBalance = walletBalance ?? Infinity;
+    if (amount > safeBalance) {
       setToast("Insufficient wallet balance");
       return;
     }
@@ -171,9 +172,15 @@ export default function StableSavePage() {
       const data = await res.json();
       if (!res.ok || data.error) throw new Error(data.error || "Deposit failed");
 
-      setVault({ ...data.vault, is_locked: Boolean(data.vault.is_locked) });
-      setLiveYield(Number(data.vault.accrued_yield || 0));
-      setWalletBalance(Number(data.newWalletBalance ?? walletBalance - amount));
+      setVault((prev) => ({
+        ...(data.vault || prev || {}),
+        principal: Number(prev?.principal || 0) + amount,
+        accrued_yield: Number(prev?.accrued_yield || 0),
+        is_active: true,
+        is_locked: Boolean(data.vault?.is_locked ?? prev?.is_locked),
+      } as VaultState));
+      setLiveYield(Number(data.vault?.accrued_yield ?? vault?.accrued_yield ?? 0));
+      setWalletBalance((prev) => Number((Number(prev || 0) - amount).toFixed(6)));
       setDepositAmount("");
       setShowDeposit(false);
       setToast(`$${amount.toFixed(2)} USDT deposited to vault`);
@@ -240,7 +247,7 @@ export default function StableSavePage() {
             <div className="mb-4"><label htmlFor="deposit-amount" className="mb-2 block text-xs text-gray-400">Amount to deposit (USDT)</label><div className="relative"><span className="absolute left-4 top-1/2 -translate-y-1/2 font-semibold text-gray-400">$</span><input id="deposit-amount" type="number" inputMode="decimal" value={depositAmount} onChange={(e) => setDepositAmount(e.target.value)} placeholder="0.00" className="h-14 w-full rounded-xl border border-white/10 bg-[#0f172a] pl-8 pr-4 text-xl font-bold text-white placeholder:text-gray-600 focus:border-green-500/50 focus:outline-none" /></div></div>
             <div className="mb-4 grid grid-cols-4 gap-2">{["10", "25", "50", "100"].map((amt) => <button key={amt} onClick={() => setDepositAmount(amt)} className={`h-9 rounded-lg text-sm font-medium transition-all ${depositAmount === amt ? "bg-green-600 text-white" : "border border-white/10 bg-[#0f172a] text-gray-300"}`}>${amt}</button>)}</div>
             {parseFloat(depositAmount) > 0 && <div className="mb-4 rounded-xl border border-green-500/20 bg-green-900/20 p-3"><p className="mb-1 text-xs text-green-400">At 8% APY you could earn:</p><div className="flex justify-between text-xs"><span className="text-gray-400">Monthly</span><span className="font-semibold text-green-400">+${(parseFloat(depositAmount) * 0.08 / 12).toFixed(4)} USDT</span></div><div className="mt-1 flex justify-between text-xs"><span className="text-gray-400">Yearly</span><span className="font-semibold text-green-400">+${(parseFloat(depositAmount) * 0.08).toFixed(2)} USDT</span></div></div>}
-            <button onClick={handleDeposit} disabled={actionLoading || !depositAmount || parseFloat(depositAmount) <= 0 || parseFloat(depositAmount) > walletBalance} className="flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-green-600 font-bold text-white transition-all active:scale-95 disabled:cursor-not-allowed disabled:opacity-40">{actionLoading ? <><Loader2 className="h-4 w-4 animate-spin" />Depositing...</> : `Deposit $${depositAmount || "0"} USDT`}</button>
+            <button onClick={handleDeposit} disabled={actionLoading || !depositAmount || parseFloat(depositAmount) <= 0 || parseFloat(depositAmount) > (walletBalance ?? Infinity)} className="flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-green-600 font-bold text-white transition-all active:scale-95 disabled:cursor-not-allowed disabled:opacity-40">{actionLoading ? <><Loader2 className="h-4 w-4 animate-spin" />Depositing...</> : `Deposit $${depositAmount || "0"} USDT`}</button>
           </div>
         </>
       )}
