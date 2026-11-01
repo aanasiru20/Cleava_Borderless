@@ -26,6 +26,7 @@ A unified stablecoin solution built for mobile viewports using a flexible person
 - **Styling:** Tailwind CSS (Custom color schemes including Cleva Green `#00D26A` & Tether Teal `#009393`)
 - **Icons:** Lucide React
 - **Configuration:** PostCSS, TypeScript 5, Tailwind compilation
+- **AI Coach:** Google Gemini Flash 1.5 via the Gemini API (`GEMINI_API_KEY`)
 
 ---
 

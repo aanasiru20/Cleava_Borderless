@@ -7,7 +7,7 @@
 - **Styling:** Tailwind CSS + shadcn/ui
 - **Icons:** Lucide React
 - **Database/Auth:** Supabase (PostgreSQL)
-- **AI:** Vercel AI SDK (`ai` package) + Google Gemini (`@google/genai`)
+- **AI:** Google Gemini Flash 1.5 via `@google/genai` (`GEMINI_API_KEY`)
 - **QR Codes:** `qrcode.react` (Frontend rendering) & `react-qr-reader` (Scanning)
 
 ## 2. Directory Structure (App Router)
