@@ -28,6 +28,15 @@ export default function AISavingsCoach({ userId = "freelancer-123", showCard = f
 
   useEffect(() => {
     if (!isOpen) return;
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = previousOverflow;
+    };
+  }, [isOpen]);
+
+  useEffect(() => {
+    if (!isOpen) return;
     fetch(`/api/ai-coach/history?userId=${encodeURIComponent(userId)}`)
       .then((res) => (res.ok ? res.json() : null))
       .then((history) => {
@@ -93,10 +102,14 @@ export default function AISavingsCoach({ userId = "freelancer-123", showCard = f
         </section>
       )}
 
-      {!isOpen && !showCard && <button type="button" aria-label="Open Ada savings coach" onClick={() => setIsOpen(true)} className="absolute bottom-24 right-4 z-40 flex size-14 items-center justify-center rounded-full bg-emerald-500 text-slate-950 shadow-lg shadow-emerald-950/50 transition hover:bg-emerald-400 active:scale-95"><Bot className="size-6" /></button>}
+      {!isOpen && !showCard && (
+        <div className="fixed bottom-24 left-1/2 z-40 flex w-[calc(100%-2rem)] max-w-[390px] -translate-x-1/2 justify-end px-4">
+          <button type="button" aria-label="Open Ada savings coach" onClick={() => setIsOpen(true)} className="flex size-14 items-center justify-center rounded-full bg-emerald-500 text-slate-950 shadow-lg shadow-emerald-950/50 transition hover:bg-emerald-400 active:scale-95"><Bot className="size-6" /></button>
+        </div>
+      )}
 
       {isOpen && (
-        <div className="absolute inset-0 z-50 flex flex-col bg-slate-950 text-white md:inset-auto md:bottom-4 md:right-4 md:h-[min(680px,calc(100vh-2rem))] md:w-[calc(100%-2rem)] md:max-w-[358px] md:overflow-hidden md:rounded-3xl md:border md:border-slate-800 md:shadow-2xl">
+        <div className="fixed inset-y-0 left-1/2 z-50 flex h-[100dvh] max-h-[100dvh] w-full max-w-[390px] -translate-x-1/2 flex-col overflow-hidden bg-slate-950 text-white">
           <header className="flex items-center gap-3 border-b border-white/10 bg-slate-900 px-4 py-3">
             <div className="rounded-full bg-emerald-500 p-2 text-slate-950"><Bot className="size-5" /></div>
             <div className="flex-1"><p className="text-sm font-semibold">Ada — AI Savings Coach</p><p className="text-xs text-emerald-400">Online · Knows your finances</p></div>
@@ -109,7 +122,7 @@ export default function AISavingsCoach({ userId = "freelancer-123", showCard = f
             <div ref={endRef} />
           </div></div>
           {messages.length === 1 && <div className="flex flex-wrap gap-2 px-4 pb-3">{suggestions.map((question) => <button type="button" key={question} onClick={() => sendMessage(question)} className="rounded-full border border-slate-700 px-3 py-1.5 text-left text-xs text-slate-300 hover:border-emerald-500/60 hover:text-white">{question}</button>)}</div>}
-          <form onSubmit={submit} className="flex gap-2 border-t border-white/10 bg-slate-900 p-3"><textarea value={input} onChange={(event) => setInput(event.target.value)} onKeyDown={(event) => { if (event.key === "Enter" && !event.shiftKey && !event.nativeEvent.isComposing && event.keyCode !== 229) { event.preventDefault(); submit(event); } }} aria-label="Message Ada" placeholder="Ask Ada anything…" rows={1} className="min-h-11 flex-1 resize-none rounded-xl border border-slate-700 bg-slate-950 px-3 py-3 text-sm outline-none focus:border-emerald-500" /><button type="submit" disabled={!input.trim() || isLoading} aria-label="Send message" className="flex size-11 items-center justify-center rounded-xl bg-emerald-500 text-slate-950 disabled:cursor-not-allowed disabled:opacity-40"><Send className="size-4" /></button></form>
+          <form onSubmit={submit} className="flex gap-2 border-t border-white/10 bg-slate-900 p-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))]"><textarea value={input} onChange={(event) => setInput(event.target.value)} onKeyDown={(event) => { if (event.key === "Enter" && !event.shiftKey && !event.nativeEvent.isComposing && event.keyCode !== 229) { event.preventDefault(); submit(event); } }} aria-label="Message Ada" placeholder="Ask Ada anything…" rows={1} className="min-h-11 flex-1 resize-none rounded-xl border border-slate-700 bg-slate-950 px-3 py-3 text-sm outline-none focus:border-emerald-500" /><button type="submit" disabled={!input.trim() || isLoading} aria-label="Send message" className="flex size-11 items-center justify-center rounded-xl bg-emerald-500 text-slate-950 disabled:cursor-not-allowed disabled:opacity-40"><Send className="size-4" /></button></form>
           <p className="bg-slate-900 pb-3 text-center text-[10px] text-slate-500">Powered by Gemini AI · Your data stays private</p>
         </div>
       )}

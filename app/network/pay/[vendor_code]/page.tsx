@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useCallback } from "react";
 import { useRouter, useParams } from "next/navigation";
-import { ChevronLeft, CheckCircle2, XCircle, Loader2, Info, ArrowDownUp } from "lucide-react";
+import { ChevronLeft, CheckCircle2, Loader2, Info, ArrowDownUp } from "lucide-react";
 import confetti from "canvas-confetti";
 
 export default function StudentPaymentPage() {
@@ -19,15 +19,6 @@ export default function StudentPaymentPage() {
   const [description, setDescription] = useState("");
   const [isPaying, setIsPaying] = useState(false);
   const [successTx, setSuccessTx] = useState<any>(null);
-  const [failureReason, setFailureReason] = useState<string | null>(null);
-  const [receiptToast, setReceiptToast] = useState(false);
-
-  useEffect(() => {
-    if (!successTx && !failureReason) return;
-    const previousOverflow = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
-    return () => { document.body.style.overflow = previousOverflow; };
-  }, [successTx, failureReason]);
 
   const NGN_RATE = 1700;
   const usdtEquivalent = parseFloat(amountNgn) > 0 ? (parseFloat(amountNgn) / NGN_RATE).toFixed(2) : "0.00";
@@ -79,13 +70,9 @@ export default function StudentPaymentPage() {
           origin: { y: 0.6 },
           colors: ['#00D26A', '#009393', '#ffffff']
         });
-      } else {
-        const data = await res.json().catch(() => ({}));
-        setFailureReason(data.error || "The payment could not be completed.");
       }
     } catch (e) {
       console.error(e);
-      setFailureReason("Network error. Please try again.");
     }
     setIsPaying(false);
   };
@@ -106,50 +93,43 @@ export default function StudentPaymentPage() {
     );
   }
 
-  if (successTx || failureReason) {
-    const isSuccess = Boolean(successTx);
-    const reference = successTx?.id || successTx?.reference || "Unavailable";
-    const paidAt = successTx?.settled_at ? new Date(successTx.settled_at).toLocaleString() : new Date().toLocaleString();
-    const copyReceipt = async () => {
-      if (!successTx) return;
-      const receipt = `Payment Successful\n${vendor.business_name}\n$${successTx.amount_usdt.toFixed(2)} USDT / NGN ${Number(successTx.naira_equivalent).toLocaleString()}\nReference: ${reference}`;
-      await navigator.clipboard?.writeText(receipt);
-      setReceiptToast(true);
-      window.setTimeout(() => setReceiptToast(false), 2200);
-    };
-
+  if (successTx) {
     return (
-      <main className="flex min-h-screen items-center justify-center bg-slate-900 p-4 font-sans antialiased">
-        <div className="relative flex h-[850px] w-full max-w-md flex-col items-center justify-center overflow-hidden rounded-[40px] border border-slate-800 bg-slate-950 p-6 shadow-2xl">
-          <div className="absolute inset-0 bg-black/70" aria-hidden="true" />
-          <section role="dialog" aria-modal="true" aria-labelledby="payment-result-title" className="relative z-10 w-full rounded-[28px] bg-white p-6 text-center shadow-2xl animate-fadeIn">
-            <div className={`mx-auto mb-4 flex h-20 w-20 animate-[scale-in_0.4s_ease-out] items-center justify-center rounded-full ${isSuccess ? "bg-emerald-100" : "bg-red-100"}`}>
-              {isSuccess ? <CheckCircle2 className="h-11 w-11 text-emerald-500" /> : <XCircle className="h-11 w-11 text-red-500" />}
+      <main className="flex min-h-screen items-center justify-center bg-[#00D26A] p-4 font-sans antialiased animate-fadeIn">
+        <div className="relative flex h-[850px] w-full max-w-md flex-col overflow-hidden rounded-[40px] bg-white shadow-2xl p-8 justify-center items-center text-center">
+          <div className="h-24 w-24 rounded-full bg-[#00D26A]/20 flex items-center justify-center mb-6">
+            <CheckCircle2 className="h-12 w-12 text-[#00D26A]" />
+          </div>
+          
+          <h1 className="text-3xl font-extrabold text-slate-900 mb-2">Payment Sent!</h1>
+          <p className="text-slate-500 mb-8">{vendor.business_name}</p>
+
+          <div className="bg-slate-50 border border-slate-200 rounded-3xl p-6 w-full space-y-4 shadow-sm mb-8">
+            <div className="text-4xl font-extrabold text-slate-900">
+              ${successTx.amount_usdt.toFixed(2)} <span className="text-lg text-slate-400">USDT</span>
             </div>
-            <h1 id="payment-result-title" className="text-2xl font-extrabold text-slate-900">{isSuccess ? "Payment Successful" : "Payment Failed"}</h1>
-            {isSuccess ? (
-              <>
-                <p className="mt-4 text-4xl font-extrabold text-slate-900">${successTx.amount_usdt.toFixed(2)} <span className="text-base text-slate-400">USDT</span></p>
-                <p className="mt-1 text-sm text-slate-500">NGN {Number(successTx.naira_equivalent).toLocaleString(undefined, { minimumFractionDigits: 2 })}</p>
-                <div className="mt-5 space-y-3 border-t border-slate-200 pt-4 text-left text-sm">
-                  <div className="flex justify-between gap-4"><span className="text-slate-500">Paid to:</span><strong className="text-right text-slate-900">{vendor.business_name}</strong></div>
-                  <div className="flex justify-between gap-4"><span className="text-slate-500">Date &amp; time:</span><strong className="text-right text-slate-900">{paidAt}</strong></div>
-                  <div className="flex justify-between gap-4"><span className="text-slate-500">Reference:</span><strong className="max-w-[180px] truncate text-right text-slate-900">{reference}</strong></div>
-                  <div className="flex justify-between"><span className="text-slate-500">Status:</span><strong className="text-emerald-500">Successful</strong></div>
-                </div>
-                <div className="mt-6 flex gap-3">
-                  <button onClick={() => router.push("/network")} className="min-h-11 flex-1 rounded-xl bg-emerald-500 px-4 py-3 font-bold text-white hover:bg-emerald-600">Done</button>
-                  <button onClick={copyReceipt} className="min-h-11 flex-1 rounded-xl border border-slate-200 px-4 py-3 font-bold text-slate-700 hover:bg-slate-50">Share receipt</button>
-                </div>
-                {receiptToast && <p role="status" className="mt-3 text-xs font-semibold text-emerald-600">Receipt copied</p>}
-              </>
-            ) : (
-              <>
-                <p className="mt-3 text-sm text-slate-500">{failureReason}</p>
-                <button onClick={() => setFailureReason(null)} className="mt-6 min-h-11 w-full rounded-xl bg-red-500 px-4 py-3 font-bold text-white hover:bg-red-600">Try again</button>
-              </>
-            )}
-          </section>
+            <div className="text-sm font-semibold text-slate-500 bg-slate-200/50 inline-block px-3 py-1 rounded-full">
+              ₦{successTx.naira_equivalent.toLocaleString()}
+            </div>
+            
+            <div className="pt-4 border-t border-slate-200">
+              <p className="text-xs text-slate-400 font-medium">{successTx.item_description}</p>
+            </div>
+          </div>
+
+          <div className="space-y-1 mb-12">
+            <p className="text-xs font-bold text-slate-400">Settled in 1.3 seconds</p>
+            <p className="text-[10px] font-semibold text-slate-400 flex items-center justify-center gap-1 uppercase tracking-widest">
+              Powered by USDT on Tron
+            </p>
+          </div>
+
+          <button 
+            onClick={() => router.push("/network")}
+            className="w-full flex items-center justify-center gap-2 rounded-2xl bg-slate-900 hover:bg-slate-800 text-white font-bold py-4 transition-all"
+          >
+            Done
+          </button>
         </div>
       </main>
     );
