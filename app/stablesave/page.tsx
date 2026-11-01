@@ -174,8 +174,8 @@ export default function StableSavePage() {
 
       setVault((prev) => ({
         ...(data.vault || prev || {}),
-        principal: Number(prev?.principal || 0) + amount,
-        accrued_yield: Number(prev?.accrued_yield || 0),
+        principal: Number(data.vault?.principal ?? Number(prev?.principal || 0) + amount),
+        accrued_yield: Number(data.vault?.accrued_yield ?? prev?.accrued_yield ?? 0),
         is_active: true,
         is_locked: Boolean(data.vault?.is_locked ?? prev?.is_locked),
       } as VaultState));
@@ -240,14 +240,14 @@ export default function StableSavePage() {
       {showDeposit && (
         <>
           <div onClick={() => setShowDeposit(false)} className="fixed inset-0 z-40 bg-black/60" />
-          <div className="fixed bottom-0 left-1/2 z-50 w-full max-w-[390px] -translate-x-1/2 rounded-t-3xl border-t border-white/10 bg-[#1e293b] px-4 pb-10 pt-5 animate-slide-up">
+          <div className="fixed bottom-0 left-1/2 z-50 flex h-[100dvh] max-h-[100dvh] w-full max-w-[390px] -translate-x-1/2 flex-col overflow-y-auto rounded-t-3xl border-t border-white/10 bg-[#1e293b] px-4 pb-[calc(1.5rem+env(safe-area-inset-bottom))] pt-5 animate-slide-up">
             <div className="mx-auto mb-4 h-1 w-10 rounded-full bg-white/20" />
             <div className="mb-6 flex items-center justify-between"><h2 className="text-lg font-bold">Deposit to Vault</h2><button onClick={() => setShowDeposit(false)} className="flex h-8 w-8 items-center justify-center rounded-full bg-white/10 text-gray-400 hover:text-white" aria-label="Close deposit dialog">✕</button></div>
             <div className="mb-4 rounded-xl bg-[#0f172a] p-3"><p className="text-xs text-gray-400">Available in wallet</p><p className="text-lg font-bold">${walletBalance.toFixed(2)} USDT</p></div>
             <div className="mb-4"><label htmlFor="deposit-amount" className="mb-2 block text-xs text-gray-400">Amount to deposit (USDT)</label><div className="relative"><span className="absolute left-4 top-1/2 -translate-y-1/2 font-semibold text-gray-400">$</span><input id="deposit-amount" type="number" inputMode="decimal" value={depositAmount} onChange={(e) => setDepositAmount(e.target.value)} placeholder="0.00" className="h-14 w-full rounded-xl border border-white/10 bg-[#0f172a] pl-8 pr-4 text-xl font-bold text-white placeholder:text-gray-600 focus:border-green-500/50 focus:outline-none" /></div></div>
             <div className="mb-4 grid grid-cols-4 gap-2">{["10", "25", "50", "100"].map((amt) => <button key={amt} onClick={() => setDepositAmount(amt)} className={`h-9 rounded-lg text-sm font-medium transition-all ${depositAmount === amt ? "bg-green-600 text-white" : "border border-white/10 bg-[#0f172a] text-gray-300"}`}>${amt}</button>)}</div>
             {parseFloat(depositAmount) > 0 && <div className="mb-4 rounded-xl border border-green-500/20 bg-green-900/20 p-3"><p className="mb-1 text-xs text-green-400">At 8% APY you could earn:</p><div className="flex justify-between text-xs"><span className="text-gray-400">Monthly</span><span className="font-semibold text-green-400">+${(parseFloat(depositAmount) * 0.08 / 12).toFixed(4)} USDT</span></div><div className="mt-1 flex justify-between text-xs"><span className="text-gray-400">Yearly</span><span className="font-semibold text-green-400">+${(parseFloat(depositAmount) * 0.08).toFixed(2)} USDT</span></div></div>}
-            <button onClick={handleDeposit} disabled={actionLoading || !depositAmount || parseFloat(depositAmount) <= 0 || parseFloat(depositAmount) > (walletBalance ?? Infinity)} className="flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-green-600 font-bold text-white transition-all active:scale-95 disabled:cursor-not-allowed disabled:opacity-40">{actionLoading ? <><Loader2 className="h-4 w-4 animate-spin" />Depositing...</> : `Deposit $${depositAmount || "0"} USDT`}</button>
+            <button onClick={handleDeposit} disabled={actionLoading || !depositAmount || !Number.isFinite(parseFloat(depositAmount)) || parseFloat(depositAmount) <= 0} className="fixed bottom-[env(safe-area-inset-bottom)] left-1/2 z-[60] flex h-12 w-[calc(100%-2rem)] max-w-[358px] -translate-x-1/2 items-center justify-center gap-2 rounded-xl bg-green-600 font-bold text-white shadow-[0_-8px_24px_rgba(15,23,42,0.5)] transition-all active:scale-95 disabled:cursor-not-allowed disabled:opacity-40">{actionLoading ? <><Loader2 className="h-4 w-4 animate-spin" />Depositing...</> : `Deposit $${depositAmount || "0"} USDT`}</button>
           </div>
         </>
       )}
