@@ -23,6 +23,7 @@ export default function AISavingsCoach({ userId = "freelancer-123", showCard = f
   const [messages, setMessages] = useState<Message[]>([greeting]);
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [retryMessage, setRetryMessage] = useState<string | null>(null);
   const endRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -44,18 +45,28 @@ export default function AISavingsCoach({ userId = "freelancer-123", showCard = f
     endRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages, isLoading]);
 
-  const sendMessage = async (value = input) => {
+  const sendMessage = async (value = input, isRetry = false) => {
     const text = value.trim();
     if (!text || isLoading) return;
-    setMessages((current) => [...current, { role: "user", content: text, timestamp: new Date() }]);
-    setInput("");
+    if (!isRetry) {
+      setMessages((current) => [...current, { role: "user", content: text, timestamp: new Date() }]);
+      setInput("");
+    }
+    setRetryMessage(null);
     setIsLoading(true);
+    let timeout: ReturnType<typeof setTimeout> | undefined;
     try {
-      const response = await fetch("/api/ai-coach", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ message: text, userId }) });
-      const data = await response.json();
-      setMessages((current) => [...current, { role: "coach", content: data.reply || "I couldn’t process that right now. Please try again.", timestamp: new Date() }]);
+      const controller = new AbortController();
+      timeout = setTimeout(() => controller.abort(), 20_000);
+      const response = await fetch("/api/ai-coach", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ message: text, userId }), signal: controller.signal });
+      clearTimeout(timeout);
+      const data = await response.json().catch(() => ({}));
+      if (!response.ok || !data.reply) throw new Error("Ada did not return a reply");
+      setMessages((current) => [...current, { role: "coach", content: data.reply, timestamp: new Date() }]);
     } catch {
-      setMessages((current) => [...current, { role: "coach", content: "I’m having trouble connecting. Please try again in a moment.", timestamp: new Date() }]);
+      if (timeout) clearTimeout(timeout);
+      setRetryMessage(text);
+      setMessages((current) => [...current, { role: "coach", content: "That took too long.", timestamp: new Date() }]);
     } finally {
       setIsLoading(false);
     }
@@ -93,7 +104,8 @@ export default function AISavingsCoach({ userId = "freelancer-123", showCard = f
           </header>
           <div className="flex-1 overflow-y-auto px-4 py-4"><div className="flex flex-col gap-4">
             {messages.map((message, index) => <div key={`${message.timestamp.toISOString()}-${index}`} className={`flex ${message.role === "user" ? "justify-end" : "justify-start"}`}><div className={`max-w-[84%] rounded-2xl px-4 py-3 text-sm leading-relaxed ${message.role === "user" ? "rounded-tr-sm bg-emerald-500 text-slate-950" : "rounded-tl-sm bg-slate-900 text-slate-100"}`}>{message.content}<p className="mt-1 text-[10px] opacity-50">{message.timestamp.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}</p></div></div>)}
-            {isLoading && <div className="rounded-2xl rounded-tl-sm bg-slate-900 px-4 py-3 text-sm text-emerald-300">Ada is thinking…</div>}
+            {isLoading && <div className="rounded-2xl rounded-tl-sm bg-slate-900 px-4 py-3 text-sm text-emerald-300" role="status" aria-live="polite">Ada is thinking…</div>}
+            {retryMessage && !isLoading && <div className="flex items-center gap-2 text-xs text-slate-400"><span>Try sending that again.</span><button type="button" onClick={() => sendMessage(retryMessage, true)} className="rounded-lg border border-emerald-500/50 px-2 py-1 font-semibold text-emerald-300 hover:bg-emerald-500/10">Try again</button></div>}
             <div ref={endRef} />
           </div></div>
           {messages.length === 1 && <div className="flex flex-wrap gap-2 px-4 pb-3">{suggestions.map((question) => <button type="button" key={question} onClick={() => sendMessage(question)} className="rounded-full border border-slate-700 px-3 py-1.5 text-left text-xs text-slate-300 hover:border-emerald-500/60 hover:text-white">{question}</button>)}</div>}
