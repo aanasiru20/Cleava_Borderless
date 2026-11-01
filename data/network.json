@@ -5,9 +5,9 @@
       "name": "ABU Zaria Campus Network",
       "campus": "Ahmadu Bello University",
       "created_by": "freelancer-123",
-      "total_pool_balance": 2847.5299999999997,
+      "total_pool_balance": 2850.0299999999997,
       "total_vendors": 47,
-      "total_transactions": 1205,
+      "total_transactions": 1206,
       "network_code": "NET-ABU01",
       "is_active": true,
       "created_at": "2026-08-01T08:00:00Z"
@@ -22,9 +22,9 @@
       "category": "food",
       "qr_code": "cleva://pay/VND-MNK01",
       "vendor_code": "VND-MNK01",
-      "today_earnings": 47.5,
-      "total_earnings": 2847,
-      "pending_payout": 47.5,
+      "today_earnings": 50,
+      "total_earnings": 2849.5,
+      "pending_payout": 50,
       "is_verified": true,
       "joined_at": "2026-08-01T08:00:00Z"
     },
@@ -162,6 +162,17 @@
       "item_description": "photocopy",
       "status": "settled",
       "settled_at": "2026-08-04T21:39:10.313Z"
+    },
+    {
+      "id": "c81c717d-b4f6-4f1f-970e-017d3baaeb61",
+      "network_id": "net-1",
+      "vendor_id": "vendor-1",
+      "payer_user_id": "user-current-student",
+      "amount_usdt": 2.5,
+      "naira_equivalent": 4250,
+      "item_description": "QR Payment",
+      "status": "settled",
+      "settled_at": "2026-11-01T15:12:20.787Z"
     }
   ],
   "payouts": []
