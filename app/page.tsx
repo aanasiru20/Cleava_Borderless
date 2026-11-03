@@ -1314,7 +1314,7 @@ export default function Home() {
                 <Store className="h-5 w-5" />
               </div>
               <span className="text-[10px] font-medium text-slate-500 group-hover:text-[#00D26A] transition-colors">
-                Network
+                PayLinks
               </span>
             </button>
 
