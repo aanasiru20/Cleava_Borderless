@@ -4,8 +4,14 @@ import { createAdminClient } from "@/lib/supabase/server";
 export async function POST(request: Request, { params }: { params: { code: string } }) {
   try {
     const body = await request.json().catch(() => ({}));
-    const payoutMethod = body.payout_method === "paypal" ? "paypal" : "usdt_wallet";
     const supabase = createAdminClient();
+    if (body.reset_demo && params.code === "ESC-DEMO01") {
+      const { data, error } = await supabase.from("escrow_transactions").update({ status: "delivered", released_at: null, paypal_batch_id: null, payout_method: "usdt_wallet" }).eq("escrow_code", params.code).select("*").maybeSingle();
+      if (error) throw error;
+      if (!data) return NextResponse.json({ error: "Escrow not found" }, { status: 404 });
+      return NextResponse.json({ success: true, escrow: data });
+    }
+    const payoutMethod = body.payout_method === "paypal" ? "paypal" : "usdt_wallet";
     const { data, error } = await supabase
       .from("escrow_transactions")
       .update({
