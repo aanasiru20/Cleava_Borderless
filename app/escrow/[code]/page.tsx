@@ -15,6 +15,7 @@ type Escrow = {
   job_description: string;
   status: "funded" | "delivered" | "released";
   funded_at?: string | null;
+  created_at?: string | null;
   delivered_at?: string | null;
   released_at?: string | null;
   payout_method?: "usdt_wallet" | "paypal" | null;
@@ -23,7 +24,7 @@ type Escrow = {
 
 const steps = ["funded", "delivered", "released"] as const;
 
-const formatDate = (value?: string | null) => value ? new Intl.DateTimeFormat("en-US", { dateStyle: "medium", timeStyle: "short" }).format(new Date(value)) : "—";
+const formatDate = (value: string | null | undefined) => value ? new Intl.DateTimeFormat("en-US", { dateStyle: "medium", timeStyle: "short" }).format(new Date(value)) : "Just now";
 
 export default function EscrowClientPage() {
   const params = useParams<{ code: string }>();
