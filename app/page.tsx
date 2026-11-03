@@ -691,7 +691,7 @@ export default function Home() {
                           )}
                           
                           <div className="mt-2 text-[9px] text-slate-500 truncate">
-                            Link: <a href={`/escrow/${escrow.escrow_code}`} target="_blank" rel="noreferrer" className="text-[#00D26A] hover:underline">/escrow/{escrow.escrow_code}</a>
+                            Link: <a href={`/escrow/${escrow.escrow_code}`} className="relative z-10 inline-block cursor-pointer text-[#00D26A] hover:underline">/escrow/{escrow.escrow_code}</a>
                           </div>
                         </div>
                       ))
