@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import AISavingsCoach from "@/components/AISavingsCoach";
 import {
   Wallet,
@@ -691,7 +692,20 @@ export default function Home() {
                           )}
                           
                           <div className="mt-2 text-[9px] text-slate-500 truncate">
-                            Link: <a href={`/escrow/${escrow.escrow_code}`} target="_blank" rel="noreferrer" className="text-[#00D26A] hover:underline">/escrow/{escrow.escrow_code}</a>
+                            <div className="mt-2 flex min-h-11 items-center gap-2 text-[9px] text-slate-500">
+                            <span>Link:</span>
+                            <Link href={`/escrow/${escrow.escrow_code}`} className="relative z-10 inline-flex min-h-11 flex-1 items-center gap-1 cursor-pointer text-[#00D26A] underline-offset-2 hover:text-[#34E58A] hover:underline active:opacity-70">
+                              /escrow/{escrow.escrow_code}
+                              <ArrowUpRight className="size-3" aria-hidden="true" />
+                            </Link>
+                            <button type="button" aria-label="Copy escrow link" onClick={async (event) => {
+                              event.stopPropagation();
+                              await navigator.clipboard.writeText(`https://cleava-borderless.vercel.app/escrow/${escrow.escrow_code}`);
+                              setToastMessage("Link copied");
+                            }} className="inline-flex min-h-11 min-w-11 items-center justify-center rounded-lg text-slate-400 hover:bg-slate-800 hover:text-white" title="Copy link">
+                              <Copy className="size-3.5" aria-hidden="true" />
+                            </button>
+                          </div>
                           </div>
                         </div>
                       ))
@@ -1314,7 +1328,7 @@ export default function Home() {
                 <Store className="h-5 w-5" />
               </div>
               <span className="text-[10px] font-medium text-slate-500 group-hover:text-[#00D26A] transition-colors">
-                Network
+                PayLinks
               </span>
             </button>
 
