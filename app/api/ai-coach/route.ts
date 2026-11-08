@@ -18,23 +18,13 @@ function getErrorDetails(error: unknown) {
   };
 }
 
-async function generateWithTimeout(ai: GoogleGenAI, model: string, message: string, systemInstruction: string) {
-  const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), 12_000);
-  try {
-    const generation = ai.models.generateContent({ model, contents: message, config: { systemInstruction, maxOutputTokens: 300 } });
-    return await Promise.race([
-      generation,
-      new Promise<never>((_, reject) => controller.signal.addEventListener("abort", () => reject(new Error("Gemini request timed out")), { once: true })),
-    ]);
-  } finally {
-    clearTimeout(timeout);
-  }
+async function generateContent(ai: GoogleGenAI, model: string, message: string, systemInstruction: string) {
+  return ai.models.generateContent({ model, contents: message, config: { systemInstruction, maxOutputTokens: 300 } });
 }
 
 function isRetryable(error: unknown) {
   const status = getErrorDetails(error).status;
-  return status === 429 || status === 500 || status === 503 || getErrorDetails(error).message.toLowerCase().includes("timed out");
+  return status === 429 || status === 500 || status === 503;
 }
 
 export async function POST(request: NextRequest) {
@@ -67,16 +57,17 @@ export async function POST(request: NextRequest) {
     let lastError: unknown;
     for (const candidate of [model, fallbackModel]) {
       try {
-        response = await generateWithTimeout(ai, candidate, message, systemInstruction);
+        response = await generateContent(ai, candidate, message, systemInstruction);
         break;
       } catch (error) {
         lastError = error;
         const details = getErrorDetails(error);
         console.error(`[v0] Gemini ${candidate} failed (${details.status ?? "unknown"}): ${details.message}`);
-        if (candidate === model && isRetryable(error)) {
+        if (!isRetryable(error)) break;
+        if (candidate === model) {
           await sleep(800);
           try {
-            response = await generateWithTimeout(ai, candidate, message, systemInstruction);
+            response = await generateContent(ai, candidate, message, systemInstruction);
             break;
           } catch (retryError) {
             lastError = retryError;
