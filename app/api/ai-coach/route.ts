@@ -88,31 +88,26 @@ export async function POST(request: NextRequest) {
       : "I couldn't load your account details.";
     const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
     const model = process.env.GEMINI_MODEL || "gemini-3.8-flash";
-    const fallbackModel = process.env.GEMINI_FALLBACK_MODEL || "gemini-2.0-flash";
+    const configuredFallback = process.env.GEMINI_FALLBACK_MODEL?.trim();
+    const models = configuredFallback && configuredFallback !== model ? [model, configuredFallback] : [model];
     const systemInstruction = `You are Ada, a warm and direct savings coach for Nigerian university students using Cleva Borderless. Use only the financial context supplied. Give practical advice using Cleva features, never invent numbers or recommend outside products. Answer in at most 4 short sentences, then one specific action. Redirect unrelated questions by saying: I'm your savings coach — let's keep it financial!\n\nFinancial context:\n${financialContext}\n\nRecent chat history (at most 6 messages):\n${conversationHistory || "No previous chat history."}`;
     let response;
     let lastError: unknown;
-    for (const candidate of [model, fallbackModel]) {
-      try {
-        response = await generateContent(ai, candidate, message, systemInstruction);
-        break;
-      } catch (error) {
-        lastError = error;
-        const details = getErrorDetails(error);
-        console.error(`[v0] Gemini ${candidate} failed (${details.status ?? "unknown"}): ${details.message}`);
-        if (!isRetryable(error)) break;
-        if (candidate === model) {
+    for (const candidate of models) {
+      for (let attempt = 0; attempt < 2; attempt += 1) {
+        try {
+          response = await generateContent(ai, candidate, message, systemInstruction);
+          break;
+        } catch (error) {
+          lastError = error;
+          const details = getErrorDetails(error);
+          console.error(`[v0] Gemini ${candidate} failed (${details.status ?? "unknown"}, attempt ${attempt + 1}): ${details.message}`);
+          if (details.status === 404) break;
+          if (!isRetryable(error) || attempt === 1) break;
           await sleep(800);
-          try {
-            response = await generateContent(ai, candidate, message, systemInstruction);
-            break;
-          } catch (retryError) {
-            lastError = retryError;
-            const retryDetails = getErrorDetails(retryError);
-            console.error(`[v0] Gemini retry failed (${retryDetails.status ?? "unknown"}): ${retryDetails.message}`);
-          }
         }
       }
+      if (response) break;
     }
     if (!response) {
       const details = getErrorDetails(lastError);
@@ -121,17 +116,8 @@ export async function POST(request: NextRequest) {
     }
     let reply = response.text?.trim() || "";
     const finishReason = response.candidates?.[0]?.finishReason;
-    if (finishReason === "MAX_TOKENS" || (reply && !/[.!?)]$/.test(reply))) {
-      const retryStartedAt = Date.now();
-      try {
-        const retryResponse = await generateContent(ai, model, message, systemInstruction, 2048);
-        console.log("[v0] Ada truncation retry", { milliseconds: Date.now() - retryStartedAt });
-        reply = retryResponse.text?.trim() || reply;
-      } catch (retryError) {
-        console.error("[v0] Ada truncation retry failed", getErrorDetails(retryError));
-      }
-    }
-    reply = trimToCompleteSentence(reply) || `Here is your snapshot: ${snapshot} Try me again in a moment.`;
+    if (finishReason === "MAX_TOKENS") reply = trimToCompleteSentence(reply);
+    reply = reply || `Here is your snapshot: ${snapshot} Try me again in a moment.`;
     await supabase.from("ai_coach_conversations").insert({ user_id: userId, user_message: message, coach_reply: reply });
     return NextResponse.json({ reply });
   } catch (error) {
