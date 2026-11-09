@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
+import { depositToVault, getTransactionHistory, getVaultForUser, withdrawFromVault } from "@/lib/yield-db";
 
 const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.SUPABASE_SERVICE_ROLE_KEY!);
 const DEFAULT_USER_ID = "freelancer-123";
@@ -14,7 +15,10 @@ export async function GET(req: NextRequest) {
       supabase.from("yield_vaults").select("*").eq("user_id", userId).maybeSingle(),
       supabase.from("users").select("wallet_balance").eq("id", userId).maybeSingle(),
     ]);
-    if (error) throw error;
+    if (error) {
+      const localVault = getVaultForUser(userId);
+      return NextResponse.json({ vault: localVault, walletBalance: Number(user?.wallet_balance || 0), transactions: getTransactionHistory(userId, 10) });
+    }
     if (!vault || !vault.is_active) return NextResponse.json({ vault: vault || null, walletBalance: Number(user?.wallet_balance || 0), transactions: [] });
 
     const now = new Date();
@@ -42,7 +46,11 @@ export async function POST(req: NextRequest) {
     if (action === "deposit") {
       const amount = Number(body.amount);
       if (!Number.isFinite(amount) || amount <= 0) return NextResponse.json({ error: "Invalid amount" }, { status: 400 });
-      const { data: current } = await supabase.from("yield_vaults").select("*").eq("user_id", userId).maybeSingle();
+      const { data: current, error: currentError } = await supabase.from("yield_vaults").select("*").eq("user_id", userId).maybeSingle();
+      if (currentError) {
+        const vault = depositToVault(userId, amount);
+        return NextResponse.json({ vault, newWalletBalance: null });
+      }
       const now = new Date().toISOString();
       const { data: user, error: userError } = await supabase.from("users").select("wallet_balance").eq("id", userId).maybeSingle();
       if (userError || !user) return NextResponse.json({ error: "User not found" }, { status: 404 });
@@ -61,7 +69,9 @@ export async function POST(req: NextRequest) {
     }
     if (action === "withdraw") {
       const { data: vault, error } = await supabase.from("yield_vaults").update({ principal: 0, accrued_yield: 0, is_active: false, deposited_at: null }).eq("user_id", userId).eq("is_locked", false).select().single();
-      if (error) throw error;
+      if (error) {
+        return NextResponse.json({ ...withdrawFromVault(userId), vault: getVaultForUser(userId) });
+      }
       return NextResponse.json({ total: 0, principal: 0, yield: 0, vault });
     }
     return NextResponse.json({ error: "Invalid action" }, { status: 400 });

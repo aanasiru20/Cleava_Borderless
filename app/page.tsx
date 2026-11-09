@@ -268,16 +268,28 @@ export default function Home() {
   const activeSave = getSaveConfig(currentPersona);
 
   // StableSave Auto-Save execution
-  const executeAutoSave = () => {
-    setIsSwapping(true);
-    setSwapSuccess(false);
-    setTimeout(() => {
-      setIsSwapping(false);
-      setNairaBalance((prev) => Math.max(0, prev - activeSave.ngnDeduct));
-      setUsdtBalance((prev) => parseFloat((prev + activeSave.usdtAdd).toFixed(2)));
-      setSwapSuccess(true);
-      setTimeout(() => setSwapSuccess(false), 3000);
-    }, 1000);
+  const executeAutoSave = async () => {
+  setIsSwapping(true);
+  setSwapSuccess(false);
+  try {
+  const response = await fetch("/api/yield/vault", {
+  method: "POST",
+  headers: { "Content-Type": "application/json" },
+  body: JSON.stringify({ userId: "freelancer-123", action: "deposit", amount: activeSave.usdtAdd }),
+  });
+  const data = await response.json().catch(() => ({}));
+  if (!response.ok || data.error) throw new Error(data.error || "Unable to fund StableSave");
+  setNairaBalance((prev) => Math.max(0, prev - activeSave.ngnDeduct));
+  setUsdtBalance((prev) => parseFloat((prev - activeSave.usdtAdd).toFixed(2)));
+  setToastMessage(`$${activeSave.usdtAdd.toFixed(2)} USDT added to StableSave`);
+  setSwapSuccess(true);
+  setTimeout(() => setSwapSuccess(false), 3000);
+  } catch (error) {
+  console.error("StableSave auto-save error:", error);
+  setToastMessage(error instanceof Error ? error.message : "Could not fund StableSave");
+  } finally {
+  setIsSwapping(false);
+  }
   };
 
   // Generate Secure Link Simulation
