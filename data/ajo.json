@@ -25,6 +25,19 @@
       "current_round": 1,
       "invite_code": "AJO-P8SK",
       "created_at": "2026-08-04T21:08:02.105Z"
+    },
+    {
+      "name": "NAs",
+      "contribution_amount": 10,
+      "currency": "USDT",
+      "frequency": "weekly",
+      "max_members": 5,
+      "created_by": "freelancer-123",
+      "id": "aae5126f-b99b-42d7-aa4f-a5ea0d1869e8",
+      "status": "forming",
+      "current_round": 1,
+      "invite_code": "AJO-SLAU",
+      "created_at": "2026-11-09T20:28:35.346Z"
     }
   ],
   "members": [
@@ -138,6 +151,22 @@
       "missed_contributions": 0,
       "commitment_tx_hash": "TX684d1df7b49c328deed7c0a4f89a33fef5c1b6c690ac747186f5a70f97ca6ff7",
       "signed_contract_at": "2026-08-05T21:18:53.017Z",
+      "mandate_preview_signed": false
+    },
+    {
+      "id": "8bf00832-9812-449a-93c8-38a91355162a",
+      "circle_id": "aae5126f-b99b-42d7-aa4f-a5ea0d1869e8",
+      "user_id": "freelancer-123",
+      "display_name": "Me",
+      "payout_position": 1,
+      "has_received_payout": false,
+      "joined_at": "2026-11-09T20:28:35.346Z",
+      "collateral_amount": 10,
+      "collateral_status": "locked",
+      "collateral_locked_at": "2026-11-09T20:28:35.346Z",
+      "missed_contributions": 0,
+      "commitment_tx_hash": "TXb592c0662353d37683dd3233944f4d0366eb5ae23e0bfe96a9d4802d9f9b09ac",
+      "signed_contract_at": "2026-11-09T20:28:35.346Z",
       "mandate_preview_signed": false
     }
   ],
@@ -351,6 +380,16 @@
       "status": "pending",
       "paid_at": null,
       "created_at": "2026-08-05T21:18:53.017Z"
+    },
+    {
+      "id": "0c60fc27-9156-42d0-b85e-2b6bc66a26c8",
+      "circle_id": "aae5126f-b99b-42d7-aa4f-a5ea0d1869e8",
+      "member_id": "8bf00832-9812-449a-93c8-38a91355162a",
+      "round_number": 1,
+      "amount": 10,
+      "status": "pending",
+      "paid_at": null,
+      "created_at": "2026-11-09T20:28:35.346Z"
     }
   ],
   "payouts": [
@@ -471,6 +510,16 @@
       "round_number": null,
       "reason": "Joined circle — collateral locked",
       "created_at": "2026-08-05T21:18:53.017Z"
+    },
+    {
+      "id": "3214fb58-e00c-4bf4-aaa9-f1b5f052a7b3",
+      "circle_id": "aae5126f-b99b-42d7-aa4f-a5ea0d1869e8",
+      "member_id": "8bf00832-9812-449a-93c8-38a91355162a",
+      "event_type": "locked",
+      "amount": 10,
+      "round_number": null,
+      "reason": "Joined circle — collateral locked",
+      "created_at": "2026-11-09T20:28:35.346Z"
     }
   ],
   "reputation": [
