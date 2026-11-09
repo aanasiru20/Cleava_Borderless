@@ -26,7 +26,16 @@ A unified stablecoin solution built for mobile viewports using a flexible person
 - **Styling:** Tailwind CSS (Custom color schemes including Cleva Green `#00D26A` & Tether Teal `#009393`)
 - **Icons:** Lucide React
 - **Configuration:** PostCSS, TypeScript 5, Tailwind compilation
-- **AI Coach:** Google Gemini Flash 1.5 via the Gemini API (`GEMINI_API_KEY`)
+- **AI Coach (Ada):** Google Gemini Flash Lite via the Gemini API (`GEMINI_API_KEY`, optional `GEMINI_MODEL`, default `gemini-3.1-flash-lite`)
+- **Persistence:** Supabase for user financial context, Ada conversations, wallet transactions, and StableSave vault data
+
+### Ada configuration
+
+Set `GEMINI_API_KEY` in the project environment. `GEMINI_MODEL` is optional and defaults to `gemini-3.1-flash-lite`; use a model enabled for your Google AI Studio project and monitor its quota before production use.
+
+### StableSave persistence
+
+StableSave deposits are submitted through `/api/yield/vault`. The API updates the connected vault store and returns the persisted vault balance and transaction history. The dashboard’s “Approve AI Auto-Save Recommendation” action uses this API rather than only changing client-side state.
 
 ---
 
@@ -35,7 +44,8 @@ The prototype runs in a fully constrained native mobile device frame (`max-w-md 
 - **Persona Switcher:** Seamlessly toggle between **Freelancer**, **Merchant**, and **User** dashboards.
 - **Dynamic Balance & Feed:** View persona-tailored balances and recent history (e.g., Upwork payouts, local POS sales, student groceries).
 - **Simulated QR Scanner:** Experience a live camera viewfinder animation that simulates scanning, executes a 1.5s transaction verification, shows success feedback, and dynamically deducts the USDT/NGN balance.
-- **StableSave Swaps:** Approve AI-suggested auto-saves to convert local Naira to stablecoins instantly with a simulated loading spin and confirmation toast.
+- **StableSave:** Approve Ada’s recommended USDT auto-save amount, persist the deposit to the StableSave vault, update the wallet balance, and view principal, accrued yield, total value, and vault transaction history.
+- **Ada Savings Coach:** Ask financial questions using account context from Supabase, including balances, transactions, vaults, loans, Ajo activity, diaspora transfers, and recent coach conversations. Replies are limited to concise financial guidance and saved to the conversation history.
 - **PayLink Generation:** Modify billing amounts and descriptions in real-time with an active preview and one-click copy feedback.
 
 ---
