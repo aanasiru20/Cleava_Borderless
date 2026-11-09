@@ -4,9 +4,9 @@
       "id": "vault-freelancer-123",
       "user_id": "freelancer-123",
       "principal": 55.879999999999995,
-      "accrued_yield": 1534.3701327993053,
+      "accrued_yield": 1534.4740740901182,
       "apy": 8,
-      "last_accrued_at": "2026-11-09T20:11:42.135Z",
+      "last_accrued_at": "2026-11-09T20:20:11.332Z",
       "is_active": true,
       "is_locked": false,
       "deposited_at": "2026-08-04T18:00:00Z",
@@ -328,6 +328,15 @@
       "balance_after": 1590.2501327993054,
       "note": "Yield accrued automatically",
       "created_at": "2026-11-09T20:11:42.135Z"
+    },
+    {
+      "id": "32946bed-1a3b-4b5a-944a-ea03cc5df85b",
+      "user_id": "freelancer-123",
+      "type": "yield_credit",
+      "amount": 0.10394129081278537,
+      "balance_after": 1590.354074090118,
+      "note": "Yield accrued automatically",
+      "created_at": "2026-11-09T20:20:11.332Z"
     }
   ]
 }

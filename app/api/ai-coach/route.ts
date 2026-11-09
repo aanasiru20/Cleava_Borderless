@@ -29,7 +29,7 @@ export async function POST(request: NextRequest) {
     const [user, transactions, vault, loan, ajo, transfers] = results;
     const financialContext = JSON.stringify({ user: user.data ?? null, transactions: transactions.data ?? [], vault: vault.data ?? null, loan: loan.data ?? null, ajo: ajo.data ?? [], diasporaTransfers: transfers.data ?? [] });
     const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
-    const model = process.env.GEMINI_MODEL || "gemini-3.8-flash";
+    const model = process.env.GEMINI_MODEL || "gemini-3.1-flash-lite";
     const response = await ai.models.generateContent({ model, contents: message, config: { systemInstruction: `You are Ada, a warm and direct savings coach for Nigerian university students using Cleva Borderless. Use only the financial context supplied. Give practical advice using Cleva features, never invent numbers or recommend outside products. Keep replies to four concise plain-text sentences unless asked for detail. End with one specific actionable suggestion. Redirect unrelated questions by saying: I'm your savings coach — let's keep it financial!\n\nFinancial context:\n${financialContext}`, maxOutputTokens: 1000 } });
     const reply = response.text?.trim() || "I couldn’t process that right now. Please try again.";
     await supabase.from("ai_coach_conversations").insert({ user_id: userId, user_message: message, coach_reply: reply });
