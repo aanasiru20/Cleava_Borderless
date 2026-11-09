@@ -588,6 +588,8 @@ export default function DiasporaLandingPage() {
                 <p className="rounded-xl bg-slate-800 px-4 py-3 text-center text-sm font-semibold text-amber-300">PayPal is not configured</p>
               ) : !isPaypalFormComplete ? (
                 <p className="py-3 text-center text-xs text-slate-500">Enter your name, email and an amount to continue</p>
+              ) : paypalLoading ? (
+                <div className="flex min-h-12 items-center justify-center rounded-xl bg-slate-800 text-sm font-semibold text-slate-300">Processing PayPal payment…</div>
               ) : (
                 <PayPalScriptProvider options={{ clientId: paypalClientId, currency: "USD", intent: "capture" }}>
                   <PayPalButtons
