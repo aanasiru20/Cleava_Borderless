@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import { useParams } from "next/navigation";
+import { PayPalButtons, PayPalScriptProvider } from "@paypal/react-paypal-js";
 import confetti from "canvas-confetti";
 import {
   ShieldCheck, Zap, Globe, Copy, CheckCircle2,
@@ -49,8 +50,10 @@ export default function DiasporaLandingPage() {
   const [senderCountry, setSenderCountry] = useState("United Kingdom");
   const [amount, setAmount] = useState<number>(100);
   const [customAmount, setCustomAmount] = useState<string>("");
-  const [paymentMethod, setPaymentMethod] = useState<"card" | "apple_pay" | "usdt">("card");
+  const [paymentMethod, setPaymentMethod] = useState<"paypal" | "card" | "apple_pay" | "usdt">("paypal");
   const [message, setMessage] = useState("");
+  const [paypalError, setPaypalError] = useState<string | null>(null);
+  const [paypalLoading, setPaypalLoading] = useState(false);
   
   const [receipt, setReceipt] = useState<Receipt | null>(null);
   
@@ -65,7 +68,10 @@ export default function DiasporaLandingPage() {
     if (val) setAmount(Number(val));
   };
   
+  const isValidSenderEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(senderEmail.trim());
   const isFormComplete = senderName.trim() !== "" && senderEmail.trim() !== "" && amount > 0;
+  const isPaypalFormComplete = senderName.trim() !== "" && isValidSenderEmail && amount > 0;
+  const paypalClientId = process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID;
   
   const handleSend = async () => {
     if (!isFormComplete || !student) return;
@@ -111,6 +117,32 @@ export default function DiasporaLandingPage() {
     }
   };
   
+  const handlePaypalApprove = async (orderID: string) => {
+    setPaypalLoading(true);
+    setPaypalError(null);
+    try {
+      const response = await fetch("/api/paypal/capture-order", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ orderID, studentId, amount, senderName, senderEmail, message }),
+      });
+      const data = await response.json().catch(() => ({}));
+      if (!response.ok || !data.success) throw new Error(data.error || "PayPal payment could not be completed.");
+      setReceipt({
+        transaction_ref: data.reference,
+        amount_usdt: Number(data.amount),
+        recipient: student.name,
+        message,
+        created_at: new Date().toISOString(),
+      });
+      setStep("success");
+    } catch (error) {
+      setPaypalError(error instanceof Error ? error.message : "PayPal payment could not be completed.");
+    } finally {
+      setPaypalLoading(false);
+    }
+  };
+
   useEffect(() => {
     if (step === "success") {
       confetti({
@@ -417,6 +449,28 @@ export default function DiasporaLandingPage() {
           <h3 className="text-base font-bold text-white">Payment Method</h3>
           <div className="space-y-3">
             
+            {/* PayPal Option */}
+            <div
+              onClick={() => { setPaymentMethod("paypal"); setPaypalError(null); }}
+              className={`cursor-pointer rounded-xl p-4 border transition-all flex items-start gap-3 ${
+                paymentMethod === "paypal"
+                  ? "bg-green-500/10 border-green-500 border-l-4"
+                  : "bg-[#1e293b] border-slate-700 hover:border-slate-600"
+              }`}
+            >
+              <div className={`mt-0.5 h-4 w-4 rounded-full border-2 flex items-center justify-center shrink-0 ${paymentMethod === "paypal" ? "border-green-500" : "border-slate-500"}`}>
+                {paymentMethod === "paypal" && <div className="h-2 w-2 rounded-full bg-green-500" />}
+              </div>
+              <div className="flex-1">
+                <div className="flex items-center gap-2 mb-1">
+                  <Wallet className="h-4 w-4 text-[#0070ba]" />
+                  <span className="font-bold text-white text-sm">PayPal</span>
+                  <span className="rounded-full bg-amber-400/15 px-2 py-0.5 text-[10px] font-bold text-amber-300">Recommended</span>
+                </div>
+                <p className="text-xs text-slate-400">Pay with your PayPal balance or card</p>
+              </div>
+            </div>
+
             {/* Card Option */}
             <div 
               onClick={() => setPaymentMethod("card")}
@@ -528,6 +582,38 @@ export default function DiasporaLandingPage() {
             <button disabled className="w-full flex items-center justify-center gap-2 bg-[#16a34a]/80 text-white font-bold py-4 rounded-2xl shadow-lg cursor-not-allowed">
               <Loader2 className="h-5 w-5 animate-spin" /> Processing your transfer...
             </button>
+          ) : paymentMethod === "paypal" ? (
+            <div className="space-y-2">
+              {!paypalClientId ? (
+                <p className="rounded-xl bg-slate-800 px-4 py-3 text-center text-sm font-semibold text-amber-300">PayPal is not configured</p>
+              ) : !isPaypalFormComplete ? (
+                <p className="py-3 text-center text-xs text-slate-500">Enter your name, email and an amount to continue</p>
+              ) : paypalLoading ? (
+                <div className="flex min-h-12 items-center justify-center rounded-xl bg-slate-800 text-sm font-semibold text-slate-300">Processing PayPal payment…</div>
+              ) : (
+                <PayPalScriptProvider options={{ clientId: paypalClientId, currency: "USD", intent: "capture" }}>
+                  <PayPalButtons
+                    style={{ layout: "vertical", color: "gold", height: 48 }}
+                    disabled={paypalLoading}
+                    createOrder={async () => {
+                      const response = await fetch("/api/paypal/create-order", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ amount, studentName: student?.name, studentId }),
+                      });
+                      const data = await response.json().catch(() => ({}));
+                      if (!response.ok || !data.id) throw new Error(data.error || "Unable to start PayPal checkout.");
+                      return data.id;
+                    }}
+                    onApprove={(data) => handlePaypalApprove(data.orderID)}
+                    onCancel={() => setPaypalError("Payment cancelled")}
+                    onError={(error) => setPaypalError(error instanceof Error ? error.message : "PayPal payment failed.")}
+                  />
+                </PayPalScriptProvider>
+              )}
+              <p className="text-center text-[10px] text-slate-500">Secured by PayPal. Demo uses the PayPal sandbox.</p>
+              {paypalError && <div className="flex items-center justify-between gap-3 rounded-xl bg-red-500/10 px-3 py-2 text-xs text-red-300"><span>{paypalError}</span><button type="button" onClick={() => setPaypalError(null)} className="shrink-0 font-bold underline">Try again</button></div>}
+            </div>
           ) : (
             <button 
               onClick={handleSend}
